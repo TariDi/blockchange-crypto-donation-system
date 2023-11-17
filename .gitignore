@@ -1,0 +1,22 @@
+# Dependency directories
+node_modules/
+  
+# Local Truffle build artifacts
+build/
+  
+# Environment-specific files
+.env
+
+# Truffle configuration files that may contain sensitive data
+truffle-config.js
+truffle.js
+
+# Optional - IDE / text editor specific files and directories
+.vscode/
+.idea/
+*.swp
+*~
+
+# System files
+.DS_Store
+Thumbs.db
