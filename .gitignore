@@ -8,7 +8,6 @@ build/
 .env
 
 # Truffle configuration files that may contain sensitive data
-truffle-config.js
 truffle.js
 
 # Optional - IDE / text editor specific files and directories
@@ -16,7 +15,41 @@ truffle.js
 .idea/
 *.swp
 *~
+*package-lock.json
+ui-project/
 
 # System files
 .DS_Store
 Thumbs.db
+
+notes.txt
+
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
