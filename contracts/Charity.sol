@@ -9,6 +9,7 @@ contract Charity {
 
     struct DonationCase {
         uint256 id;
+        string title;
         string description;
         uint256 targetAmount;
         CaseStatus status;
@@ -34,6 +35,7 @@ contract Charity {
     }
 
     function createCaseByNeedy(
+        string memory _title,
         string memory _description,
         uint256 _targetAmount
     ) public {
@@ -41,6 +43,7 @@ contract Charity {
 
         DonationCase memory newCase = DonationCase({
             id: nextCaseId,
+            title: _title,
             description: _description,
             targetAmount: _targetAmount,
             status: CaseStatus.InProgress,
