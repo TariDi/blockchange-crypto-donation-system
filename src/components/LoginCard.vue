@@ -105,7 +105,7 @@ export default class LoginCard extends Vue {
       this.$router.push("/donor");
     });
     this.submitLoading = false;
-    this.store.initialize();
+    await this.store.initialize();
 
     this.store.setDonorAccount(true);
     await this.store.getAccounts();

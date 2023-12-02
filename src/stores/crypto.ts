@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { Web3 } from "web3";
-import { ref } from "vue";
+import { ref } from "vue"; 
+import Charity from '../abis/Charity.json';
 
 export const useCryptoStore = defineStore("crypto", {
   state: () => ({
@@ -21,8 +22,8 @@ export const useCryptoStore = defineStore("crypto", {
     async initialize() {
       try {
         this.web3 = new Web3("http://localhost:7545")
-        this.abi = require('build/contracts/Charity.json')
-        this.charityContract = new this.web3.eth.Contract(this.abi, '0x091d45C9892F8751531a556737687cD2269Ed57F')
+        this.abi = Charity.abi
+        this.charityContract = new this.web3.eth.Contract(this.abi, '0x940b35D5A13a658291FDD0201b002f0F20Ba0BF8')
       } catch (e) {
         console.error(e);
       }
@@ -41,7 +42,7 @@ export const useCryptoStore = defineStore("crypto", {
             'Dummy',
             'Hello Shreya, this project is fun!',
             20
-        ).send({from: this.accountId})
+        ).send({from: this.accountId, gas: 200000})
         console.log('------Receipt---------')
         console.log(receipt)
         console.log('-------Methods---------')

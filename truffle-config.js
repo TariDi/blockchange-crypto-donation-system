@@ -11,6 +11,7 @@ module.exports = {
       port: 8545
     }
   },
+  contracts_build_directory: "src/abis",
   compilers: {
     solc: {
       version: "0.8.13", // or any version in the range >=0.8.2 <0.9.0
