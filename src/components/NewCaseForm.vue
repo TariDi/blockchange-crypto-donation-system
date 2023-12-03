@@ -12,16 +12,16 @@
               id="title"
               v-model="caseTitle"
               placeholder="Give a name to your case"
-              aria-describedby="title-help"
             />
           </div>
           <div class="flex flex-column gap-2">
             <label for="desc">Description</label>
-            <Textarea
+            <TextArea
               v-model="caseDescription"
+              placeholder="Briefly describe your case"
+              autoResize
               rows="7"
               cols="30"
-              placeholder="A short description of your case"
             />
           </div>
           <div class="flex flex-column gap-2">
@@ -36,11 +36,25 @@
               <InputGroupAddon>ETH</InputGroupAddon>
             </InputGroup>
           </div>
+          <div class="flex flex-column gap-2">
+            <label>Upload a creative image (optional)</label>
+            <div class="flex align-items-center gap-4">
+              <FileUpload
+                mode="basic"
+                name="file"
+                accept="image/*"
+                :maxFileSize="1000000"
+                @before-send="onUpload($event)"
+                auto
+              />
+              <label>{{ uploadedFile }}</label>
+            </div>
+          </div>
         </div>
       </template>
       <template #footer>
         <div class="pb-6 pl-6 pr-6">
-          <p-button icon="pi pi-check" label="Submit" @click="visible = true" />
+          <p-button icon="pi pi-check" label="Submit" @click="onSubmit" />
           <p-button
             icon="pi pi-times"
             label="Clear"
@@ -67,17 +81,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-facing-decorator";
-import PCard from "primevue/card";
-import PButton from "primevue/button";
-import Dialog from "primevue/dialog";
-import InputGroup from "primevue/inputgroup";
-import InputGroupAddon from "primevue/inputgroupaddon";
-import InputNumber from "primevue/inputnumber";
-import InputText from "primevue/inputtext";
-import TextArea from "primevue/textarea";
-import { useConfirm } from "primevue/useconfirm";
-import { useToast } from "primevue/usetoast";
+import { Component, Vue } from "vue-facing-decorator"
+import PCard from "primevue/card"
+import PButton from "primevue/button"
+import Dialog from "primevue/dialog"
+import InputGroup from "primevue/inputgroup"
+import InputGroupAddon from "primevue/inputgroupaddon"
+import InputNumber from "primevue/inputnumber"
+import InputText from "primevue/inputtext"
+import TextArea from "primevue/textarea"
+import { useConfirm } from "primevue/useconfirm"
+import { useToast } from "primevue/usetoast"
+import FileUpload from 'primevue/fileupload'
+import { ref } from "vue"
+import type { Ref } from 'vue'
+import { uploadFile, uploadCaseDetails } from '@/api/pinata.api'
 
 @Component({
   components: {
@@ -89,42 +107,43 @@ import { useToast } from "primevue/usetoast";
     InputNumber,
     InputText,
     TextArea,
+    FileUpload
   },
 })
 export default class NewCaseForm extends Vue {
-  visible = false;
-  confirm = useConfirm();
-  toast = useToast();
+  visible = false
+  caseTitle: string = ''
+  caseDescription = ''
+  targetAmount: number = 0
+  image: any = null
+  uploadedFile: string = ''
+  uploadedImage = null
 
-  created() {
-    this.confirm = useConfirm();
-    this.toast = useToast();
+  
+  onUpload(e) {
+    this.uploadedFile = e.formData.get('file').name
+    this.uploadedImage = e.formData
   }
 
-  confirm1(event) {
-    console.log(event.currentTarget);
-    this.confirm.require({
-      target: event.currentTarget,
-      message: "Are you sure you want to proceed?",
-      icon: "pi pi-exclamation-triangle",
-      accept: () => {
-        this.toast.add({
-          severity: "info",
-          summary: "Confirmed",
-          detail: "You have accepted",
-          life: 3000,
-        });
-      },
-      reject: () => {
-        this.toast.add({
-          severity: "error",
-          summary: "Rejected",
-          detail: "You have rejected",
-          life: 3000,
-        });
-      },
-    });
+  onSubmit() {
+    const textData = {
+      title: this.caseTitle,
+      description: this.caseDescription,
+        pinataMetadata: {
+        name: this.caseTitle.replace(/[^a-zA-Z0-9]/g, '')
+      }
+    }
+
+    console.log(this.uploadedImage)
+    console.log(textData)
+    const imageHash = uploadFile(this.uploadedImage)
+    const detailsHash = uploadCaseDetails(textData)
+
   }
+
+
+  
+  
 }
 </script>
 

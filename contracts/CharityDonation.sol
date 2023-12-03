@@ -41,7 +41,7 @@ contract CharityDonation {
         trustee = msg.sender; // The creator of the contract is the trustee
     }
 
-    function createCaseByNeedy(string memory _description, uint _targetAmount) public {
+    function createCaseByBeneficiary(string memory _description, uint _targetAmount) public {
         DonationCase memory newCase = DonationCase({
             id: nextCaseId,
             description: _description,

@@ -9,11 +9,11 @@ contract Charity {
 
     struct DonationCase {
         uint256 id;
-        string title;
-        string description;
         uint256 targetAmount;
         CaseStatus status;
         address beneficiary;
+        string detailsHash;
+        string imageHash;
     }
 
     address public trustee;
@@ -34,20 +34,20 @@ contract Charity {
         trustee = msg.sender; // The creator of the contract is the trustee
     }
 
-    function createCaseByNeedy(
-        string memory _title,
-        string memory _description,
-        uint256 _targetAmount
+    function createCaseByBeneficiary(
+        uint256 _targetAmount,
+        string memory _detailsHash,
+        string memory _imageHash
     ) public {
         require(_targetAmount > 0, "Target amount must be greater than zero");
 
         DonationCase memory newCase = DonationCase({
             id: nextCaseId,
-            title: _title,
-            description: _description,
             targetAmount: _targetAmount,
             status: CaseStatus.InProgress,
-            beneficiary: msg.sender
+            beneficiary: msg.sender,
+            detailsHash: _detailsHash,
+            imageHash: _imageHash
         });
 
         cases[nextCaseId] = newCase;
