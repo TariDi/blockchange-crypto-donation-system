@@ -25,7 +25,7 @@ export const useCryptoStore = defineStore("crypto", {
       try {
         this.web3 = new Web3("http://localhost:7545")
         this.abi = Charity.abi
-        this.charityContract = new this.web3.eth.Contract(this.abi, '0x5Cfe761129b17020786DE1d95Ad4332ED2854F66')
+        this.charityContract = new this.web3.eth.Contract(this.abi, '0x504542d716550c32dDb7f72ef1CFa951D15822d2')
       } catch (e) {
         console.error(e);
       }
@@ -47,8 +47,9 @@ export const useCryptoStore = defineStore("crypto", {
     },
     async pushNewCase(accountId: string, detailsHash: string, imageHash: string, target: number) {
         try {
+            const weiAmount = this.web3.utils.toWei(target.toString(), 'ether');
             const receipt = await this.charityContract.methods.createCaseByBeneficiary(
-              target,
+              weiAmount,
               detailsHash,
               imageHash
             ).send({from: accountId, gas: 200000})

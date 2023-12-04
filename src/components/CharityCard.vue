@@ -5,10 +5,15 @@
         <img alt="user header" src="@/assets/best-fundraising-websites.png" width="400" />
       </template>
       <template #title> DetailsHash - {{ charity.detailsHash }} </template>
-      <template #subtitle> Target Amount - {{ charity.targetAmount }} </template>
+      <template #subtitle>
+        Target Amount - {{ convertWeiToEther(charity.targetAmount) }} ETH
+      </template>
       <template #content>
         <p class="m-0">
           ImageHash - {{ charity.imageHash }}
+        </p>
+        <p class="m-0">
+          Amount Collected - {{ charity.currentAmount }}
         </p>
       </template>
       <template #footer>
@@ -56,6 +61,11 @@ export default class CharityCard extends Vue {
   donationAmount = 0;
   store = useCryptoStore();
 
+  convertWeiToEther(weiAmount) {
+    const weiAsNumber = Number(weiAmount);
+    return weiAsNumber / 1e18;
+  }
+
   async onConfirm() {
     const donationData = {
       amount: this.donationAmount,
@@ -66,7 +76,7 @@ export default class CharityCard extends Vue {
     console.log("donation data!!")
     console.log(donationData)
 
-    await this.store.donateToCase("0x9de91b283b503Fa2dda8B184Ad062A6050fFd156", donationData.amount, donationData.caseId);
+    await this.store.donateToCase("0x42C0005b0799542D40826Ed5D80A936773541481", donationData.amount, donationData.caseId);
   }
 
 }
