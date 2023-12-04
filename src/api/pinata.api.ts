@@ -88,6 +88,18 @@ const keyRestrictions = {
 
   }
 
+  export async function getCaseDetails(imageHash: string, detailsHash: string) {
+    try {
+      // const res = await axios.get(
+      //   `${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}&download=true`
+      // )
+      //console.log(res)
+      return `${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}`
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 // } else if (req.method === "GET") {
 //     try {
 //       const response = await pinata.pinList(

@@ -77,6 +77,7 @@
         <i class="pi pi-check success" />
       </div>
     </Dialog>
+    <img :src="downloadImageLink" width="300" height="200"/>
   </div>
 </template>
 
@@ -95,7 +96,7 @@ import { useToast } from "primevue/usetoast"
 import FileUpload from 'primevue/fileupload'
 import { ref } from "vue"
 import type { Ref } from 'vue'
-import { uploadFile, uploadCaseDetails } from '@/api/pinata.api'
+import { uploadFile, uploadCaseDetails, getCaseDetails } from '@/api/pinata.api'
 
 @Component({
   components: {
@@ -118,6 +119,7 @@ export default class NewCaseForm extends Vue {
   image: any = null
   uploadedFile: string = ''
   uploadedImage = null
+  downloadImageLink = ''
 
   
   onUpload(e) {
@@ -136,8 +138,11 @@ export default class NewCaseForm extends Vue {
 
     console.log(this.uploadedImage)
     console.log(textData)
-    const imageHash = uploadFile(this.uploadedImage)
-    const detailsHash = uploadCaseDetails(textData)
+    // const imageHash = uploadFile(this.uploadedImage)
+    // const detailsHash = uploadCaseDetails(textData)
+    //this.downloadImageLink = getCaseDetails('Qma8CWYsSucSNCz7chztuBGssoBDAdkeYsu97jWNFibVYq', 'QmbHuPLWFY4YXBciPKUwGMaSQ4yR5o3iNKtEy6Tu2cjP5T')
+    //this.downloadImageLink
+
 
   }
 

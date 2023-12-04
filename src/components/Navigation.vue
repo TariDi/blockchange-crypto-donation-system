@@ -34,7 +34,8 @@ import { Component, Vue } from "vue-facing-decorator";
 import PMenu from "primevue/menu";
 import { RouterLink } from "vue-router";
 import PButton from "primevue/button";
-import PAvatar from "primevue/avatar";
+import PAvatar from "primevue/avatar"
+import { useCryptoStore } from '@/stores/crypto'
 
 import { ref } from "vue";
 
@@ -47,7 +48,8 @@ import { ref } from "vue";
   },
 })
 export default class Navigation extends Vue {
-  rootPath: string = "";
+  rootPath: string = ""
+  store = useCryptoStore()
 
   items_d = ref([
     {
@@ -56,12 +58,12 @@ export default class Navigation extends Vue {
         {
           label: "Home",
           icon: "pi pi-home",
-          route: "/donor/charities",
+          route: "/donor/:username/charities",
         },
         {
           label: "Donations",
           icon: "pi pi-search",
-          route: "/donor/donations",
+          route: "/donor/:username/donations",
         },
       ],
     },
@@ -90,12 +92,12 @@ export default class Navigation extends Vue {
         {
           label: "Open Cases",
           icon: "pi pi-home",
-          route: "/beneficiary/requests",
+          route: "/beneficiary/:username/requests",
         },
         {
           label: "Create Case",
           icon: "pi pi-plus",
-          route: "/beneficiary/newcase",
+          route: "/beneficiary/:username/newcase",
         },
         // {
         //     label: 'All Cases',
@@ -123,7 +125,8 @@ export default class Navigation extends Vue {
   ]);
 
   mounted() {
-    this.rootPath = window.location.pathname.split("/")[1];
+    this.rootPath = window.location.pathname.split("/")[1]
+    console.log(this.$route.params)
   }
 
   get menuItems() {
@@ -134,7 +137,10 @@ export default class Navigation extends Vue {
   }
 
   navigate(to) {
-    this.$router.push(to);
+    if(to === '/'){
+      this.store.flushCurrentSession()
+    }
+    this.$router.push(to)
   }
 }
 </script>
