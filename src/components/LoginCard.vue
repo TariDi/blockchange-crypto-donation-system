@@ -104,12 +104,13 @@ export default class LoginCard extends Vue {
     await this.authenticate().then((result) => {
       this.$router.push("/donor");
     });
-    this.submitLoading = false;
+    
     await this.store.initialize();
 
-    this.store.setDonorAccount(true);
+    // this.store.setDonorAccount(true);
     await this.store.getAccounts();
     console.log(this.store.accountId);
+    this.submitLoading = false;
     //await this.store.getBalance()
   }
 
@@ -119,7 +120,9 @@ export default class LoginCard extends Vue {
       this.$router.push("/beneficiary");
     });
 
-    this.store.setDonorAccount(false);
+    await this.store.initialize();
+    // this.store.setDonorAccount(false);
+    
     await this.store.getAccounts();
     console.log(this.store.accountId);
     this.submitLoading = false;

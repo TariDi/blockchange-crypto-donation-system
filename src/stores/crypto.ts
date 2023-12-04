@@ -25,7 +25,7 @@ export const useCryptoStore = defineStore("crypto", {
       try {
         this.web3 = new Web3("http://localhost:7545")
         this.abi = Charity.abi
-        this.charityContract = new this.web3.eth.Contract(this.abi, '0x940b35D5A13a658291FDD0201b002f0F20Ba0BF8')
+        this.charityContract = new this.web3.eth.Contract(this.abi, '0x5Cfe761129b17020786DE1d95Ad4332ED2854F66')
       } catch (e) {
         console.error(e);
       }
@@ -48,17 +48,17 @@ export const useCryptoStore = defineStore("crypto", {
     async pushNewCase(accountId: string, detailsHash: string, imageHash: string, target: number) {
         try {
             const receipt = await this.charityContract.methods.createCaseByBeneficiary(
-                detailsHash,
-                imageHash,
-                target
+              target,
+              detailsHash,
+              imageHash
             ).send({from: accountId, gas: 200000})
-            // console.log('------Receipt---------')
-            // console.log(receipt)
-            // console.log('-------Methods---------')
-            // console.log(this.charityContract.methods)
-            // console.log('--------Events----------')
-            // console.log(this.charityContract.events)
-            // console.log('----------------------')
+            console.log('------Receipt---------')
+            console.log(receipt)
+            console.log('-------Methods---------')
+            console.log(this.charityContract.methods)
+            console.log('--------Events----------')
+            console.log(this.charityContract.events)
+            console.log('----------------------')
             if (receipt.events.CaseCreated) {
                 const { caseId, createdBy, timestamp } = receipt.events.CaseCreated.returnValues;
                 console.log(`CaseCreated event received: CaseId ${caseId}, CreatedBy ${createdBy}, Timestamp ${timestamp}`)
@@ -67,6 +67,32 @@ export const useCryptoStore = defineStore("crypto", {
         catch(error) {
             console.error(error)
         }
+    },
+    async loadActiveCases() {
+      try {
+        const getActiveCases = await this.charityContract.methods.listActiveCases().call()
+        console.log("***********active cases*****************")
+        console.log(getActiveCases);
+        return getActiveCases;
+      } catch(error) {
+        console.log(error)
+      }
+    },
+    async donateToCase(accountId: string, donateAmount: Number, caseId: string) {
+      try {
+        const weiAmount = this.web3.utils.toWei(donateAmount.toString(), 'ether');
+        const receipt = await this.charityContract.methods.donate(
+          caseId
+        ).send({from: accountId,value: weiAmount, gas: 200000})
+        console.log("*******************donate to Case************************")
+        console.log(receipt)
+        if (receipt.events.Donate) {
+          const { caseId, donatedBy, donatedAmount, timestamp } = receipt.events.Donate.returnValues;
+          console.log(`Donated event received: CaseId ${caseId}, donatedBy ${donatedBy}, donatedAmount ${donatedAmount}, Timestamp ${timestamp}`)
+      }
+      } catch(error) {
+        console.log(error)
+      }
     },
     async getBalance() {
       //setLoader()

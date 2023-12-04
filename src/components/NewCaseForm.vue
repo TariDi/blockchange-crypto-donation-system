@@ -8,35 +8,21 @@
         <div class="pr-6 pl-6 flex flex-column gap-6">
           <div class="flex flex-column gap-2">
             <label for="title">Title</label>
-            <InputText
-              id="title"
-              v-model="caseTitle"
-              placeholder="Give a name to your case"
-            />
+            <InputText id="title" v-model="caseTitle" placeholder="Give a name to your case" />
           </div>
           <div class="flex flex-column gap-2">
             <label for="desc">Description</label>
-            <TextArea
-              v-model="caseDescription"
-              placeholder="Briefly describe your case"
-              autoResize
-              rows="7"
-              cols="30"
-            />
+            <TextArea v-model="caseDescription" placeholder="Briefly describe your case" autoResize rows="7" cols="30" />
           </div>
           <div class="flex flex-column gap-2">
             <label for="target">Target Amount</label>
             <InputGroup>
-              <InputNumber
-                v-model="targetAmount"
-                inputId="minmaxfraction"
-                :minFractionDigits="2"
-                :maxFractionDigits="5"
-              />
+              <InputNumber v-model="targetAmount" inputId="minmaxfraction" :minFractionDigits="2"
+                :maxFractionDigits="5" />
               <InputGroupAddon>ETH</InputGroupAddon>
             </InputGroup>
           </div>
-          <div class="flex flex-column gap-2">
+          <!-- <div class="flex flex-column gap-2">
             <label>Upload a creative image (optional)</label>
             <div class="flex align-items-center gap-4">
               <FileUpload
@@ -49,29 +35,18 @@
               />
               <label>{{ uploadedFile }}</label>
             </div>
-          </div>
+          </div> -->
         </div>
       </template>
       <template #footer>
         <div class="pb-6 pl-6 pr-6">
           <p-button icon="pi pi-check" label="Submit" @click="onSubmit" />
-          <p-button
-            icon="pi pi-times"
-            label="Clear"
-            severity="secondary"
-            style="margin-left: 0.5em"
-          />
+          <p-button icon="pi pi-times" label="Clear" severity="secondary" style="margin-left: 0.5em" />
         </div>
       </template>
     </p-card>
-    <Dialog
-      v-model:visible="visible"
-      modal
-      header="Yay!"
-      :dismissableMask="true"
-      :closeOnEscape="true"
-      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-    >
+    <Dialog v-model:visible="visible" modal header="Yay!" :dismissableMask="true" :closeOnEscape="true"
+      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <div class="flex justify-content-center gap-3">
         <span>Case Successfully Created</span>
         <i class="pi pi-check success" />
@@ -96,6 +71,7 @@ import FileUpload from 'primevue/fileupload'
 import { ref } from "vue"
 import type { Ref } from 'vue'
 import { uploadFile, uploadCaseDetails } from '@/api/pinata.api'
+import { useCryptoStore } from "@/stores/crypto"
 
 @Component({
   components: {
@@ -119,31 +95,33 @@ export default class NewCaseForm extends Vue {
   uploadedFile: string = ''
   uploadedImage = null
 
-  
+  store = useCryptoStore();
+
   onUpload(e) {
     this.uploadedFile = e.formData.get('file').name
     this.uploadedImage = e.formData
   }
 
-  onSubmit() {
+  async onSubmit() {
     const textData = {
       title: this.caseTitle,
       description: this.caseDescription,
-        pinataMetadata: {
+      pinataMetadata: {
         name: this.caseTitle.replace(/[^a-zA-Z0-9]/g, '')
       }
     }
 
-    console.log(this.uploadedImage)
+    // console.log(this.uploadedImage)
     console.log(textData)
-    const imageHash = uploadFile(this.uploadedImage)
-    const detailsHash = uploadCaseDetails(textData)
+    // const imageHash = uploadFile(this.uploadedImage)
+    // const detailsHash = uploadCaseDetails(textData)
+    await this.store.pushNewCase("0x440291CDE19607Eb896A572725B64F9d86381B31", "12345", "1234567", 2)
 
   }
 
 
-  
-  
+
+
 }
 </script>
 
