@@ -120,7 +120,7 @@ export default class NewCaseForm extends Vue {
     //this.downloadImageLink = getCaseDetails('Qma8CWYsSucSNCz7chztuBGssoBDAdkeYsu97jWNFibVYq', 'QmbHuPLWFY4YXBciPKUwGMaSQ4yR5o3iNKtEy6Tu2cjP5T')
     //this.downloadImageLink
 
-    await this.store.pushNewCase("0x440291CDE19607Eb896A572725B64F9d86381B31", "12345", "1234567", 2)
+    await this.store.pushNewCase("0x13fCa35A7adee3Fb9ca8a0E3Ed6C0bB62BfA8Fcf", "98765", "987654321", 60)
 
   }
 

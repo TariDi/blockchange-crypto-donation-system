@@ -39,8 +39,9 @@ export const useCryptoStore = defineStore("crypto", {
     },
     async pushNewCase(accountId: string, detailsHash: string, imageHash: string, target: number) {
         try {
+            const weiAmount = this.web3.utils.toWei(target.toString(), 'ether');
             const receipt = await this.charityContract.methods.createCaseByBeneficiary(
-              target,
+              weiAmount,
               detailsHash,
               imageHash
             ).send({from: accountId, gas: 200000})
