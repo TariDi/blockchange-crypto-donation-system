@@ -21,7 +21,7 @@ export default class CharityLayout extends Vue {
 
   activeCases = []
 
-  store = useCryptoStore();
+  store = useCryptoStore()
 
   async mounted() {
     try {

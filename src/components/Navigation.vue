@@ -21,8 +21,8 @@
       >
         <p-avatar icon="pi pi-user" class="mr-2" shape="circle" />
         <span class="inline-flex flex-column">
-          <span class="font-bold">Amy Elsner</span>
-          <span class="text-sm">Donor</span>
+          <span class="font-bold">{{ store.currentSession.username }}</span>
+          <span class="text-sm">{{ accountType }}</span>
         </span>
       </p-button>
     </template>
@@ -58,12 +58,12 @@ export default class Navigation extends Vue {
         {
           label: "Home",
           icon: "pi pi-home",
-          route: "/donor/:username/charities",
+          route: "charities",
         },
         {
           label: "Donations",
           icon: "pi pi-search",
-          route: "/donor/:username/donations",
+          route: "donations",
         },
       ],
     },
@@ -73,12 +73,12 @@ export default class Navigation extends Vue {
         {
           label: "Settings",
           icon: "pi pi-cog",
-          route: "/",
+          route: "login",
         },
         {
           label: "Logout",
           icon: "pi pi-sign-out",
-          route: "/",
+          route: "login",
         },
       ],
     },
@@ -92,12 +92,12 @@ export default class Navigation extends Vue {
         {
           label: "Open Cases",
           icon: "pi pi-home",
-          route: "/beneficiary/:username/requests",
+          route: "requests",
         },
         {
           label: "Create Case",
           icon: "pi pi-plus",
-          route: "/beneficiary/:username/newcase",
+          route: "newcase",
         },
         // {
         //     label: 'All Cases',
@@ -112,12 +112,12 @@ export default class Navigation extends Vue {
         {
           label: "Settings",
           icon: "pi pi-cog",
-          route: "/",
+          route: "login",
         },
         {
           label: "Logout",
           icon: "pi pi-sign-out",
-          route: "/",
+          route: "login",
         },
       ],
     },
@@ -129,18 +129,23 @@ export default class Navigation extends Vue {
     console.log(this.$route.params)
   }
 
+  get accountType() {
+    return this.store.currentSession.donor? "Donor" : "Beneficiary"
+  }
+
   get menuItems() {
-    if (this.rootPath == "beneficiary") {
-      return this.items_b;
+    if (this.store.currentSession.donor) {
+      return this.items_d
     }
-    return this.items_d;
+    return this.items_b
   }
 
   navigate(to) {
-    if(to === '/'){
+    if(to === 'login'){
       this.store.flushCurrentSession()
+      this.$router.push({name: "login"})
     }
-    this.$router.push(to)
+    this.$router.push({name: to, params: {username: this.store.currentSession.username}})
   }
 }
 </script>

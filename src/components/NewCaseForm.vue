@@ -5,7 +5,7 @@
         <div class="pt-4 pl-6 pr-6 text-4xl">Create A New Fund Request</div>
       </template>
       <template #content>
-        <div class="pr-6 pl-6 flex flex-column gap-6">
+        <div class="pr-6 pl-6 flex flex-column gap-4">
           <div class="flex flex-column gap-2">
             <label for="title">Title</label>
             <InputText id="title" v-model="caseTitle" placeholder="Give a name to your case" />
@@ -22,7 +22,7 @@
               <InputGroupAddon>ETH</InputGroupAddon>
             </InputGroup>
           </div>
-          <!-- <div class="flex flex-column gap-2">
+          <div class="flex flex-column gap-2">
             <label>Upload a creative image (optional)</label>
             <div class="flex align-items-center gap-4">
               <FileUpload
@@ -35,7 +35,7 @@
               />
               <label>{{ uploadedFile }}</label>
             </div>
-          </div> -->
+          </div>
         </div>
       </template>
       <template #footer>
@@ -52,7 +52,6 @@
         <i class="pi pi-check success" />
       </div>
     </Dialog>
-    <img :src="downloadImageLink" width="300" height="200"/>
   </div>
 </template>
 
@@ -97,7 +96,7 @@ export default class NewCaseForm extends Vue {
   uploadedImage = null
   downloadImageLink = ''
 
-  store = useCryptoStore();
+  store = useCryptoStore()
 
   onUpload(e) {
     this.uploadedFile = e.formData.get('file').name
@@ -106,8 +105,11 @@ export default class NewCaseForm extends Vue {
 
   async onSubmit() {
     const textData = {
-      title: this.caseTitle,
-      description: this.caseDescription,
+      pinataContent: {
+        title: this.caseTitle,
+        description: this.caseDescription,
+        createdBy: this.store.currentSession.username
+      },
       pinataMetadata: {
         name: this.caseTitle.replace(/[^a-zA-Z0-9]/g, '')
       }
@@ -115,12 +117,12 @@ export default class NewCaseForm extends Vue {
 
     // console.log(this.uploadedImage)
     console.log(textData)
-    // // const imageHash = uploadFile(this.uploadedImage)
-    // // const detailsHash = uploadCaseDetails(textData)
+    const imageHash = await uploadFile(this.uploadedImage)
+    const detailsHash = await uploadCaseDetails(textData)
     //this.downloadImageLink = getCaseDetails('Qma8CWYsSucSNCz7chztuBGssoBDAdkeYsu97jWNFibVYq', 'QmbHuPLWFY4YXBciPKUwGMaSQ4yR5o3iNKtEy6Tu2cjP5T')
     //this.downloadImageLink
 
-    await this.store.pushNewCase("0x13fCa35A7adee3Fb9ca8a0E3Ed6C0bB62BfA8Fcf", "98765", "987654321", 60)
+    await this.store.pushNewCase(this.store.currentSession.accountId, imageHash, detailsHash, this.targetAmount)
 
   }
 

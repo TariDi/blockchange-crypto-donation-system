@@ -47,7 +47,8 @@ const router = createRouter({
       ],
     },
     {
-      path: "/beneficiary/:username",
+      path: "/beneficiary/:username/",
+      name: "beneficiary",
       component: HomeView,
       beforeEnter: requireLogin,
       redirect: to => ({

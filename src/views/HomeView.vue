@@ -30,6 +30,15 @@ import CharityLayout from "../components/CharityLayout.vue";
 import PToolbar from "primevue/toolbar";
 import Navigation from "../components/Navigation.vue";
 import { RouterView } from "vue-router";
+import { onMounted } from 'vue'
+import { useCryptoStore } from "@/stores/crypto";
+
+onMounted(async () => {
+  const store = useCryptoStore()
+  if(!store.web3) {
+    await store.initialize()
+  }
+})
 </script>
 
 <style lang="scss" scoped>

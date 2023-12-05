@@ -3,48 +3,61 @@ import { Web3 } from "web3";
 import { ref } from "vue"; 
 import Charity from '../abis/Charity.json'
 import type { AbiItem } from '@/types'
+import detectEthereumProvider from '@metamask/detect-provider'
 
 export const useCryptoStore = defineStore("crypto", {
   state: () => ({
     accounts: {} as any,
     loader: false,
     balance: 0,
-    web3: null as Web3 | null,
+    web3: localStorage.getItem('web3Instance') as Web3 | null,
     accountId: "",
-    abi: null as AbiItem[] | null,
-    charityContract: null,
+    abi: localStorage.getItem('abi') as AbiItem[] | null,
+    charityContract: localStorage.getItem('charityContract'),
     _tmpUserData: ['alice0130', 'bob0228', 'carol0315', 'david0420', 'erin0506',
     'fr@nk0609', 'grace0723', 'heidi0811', 'ivan0927', 'james1010'] as any,
-    currentSession: null as any
+    currentSession: localStorage.getItem('activeSession') as any
 
   }),
   actions: {
     async initialize() {
       try {
         this.web3 = new Web3("http://localhost:7545")
-        this.abi = Charity.abi
-        this.charityContract = new this.web3.eth.Contract(this.abi, '0x940b35D5A13a658291FDD0201b002f0F20Ba0BF8')
+        //localStorage.setItem('web3Instance', JSON.stringify(this.web3))
         const result = await this.web3.eth.getAccounts()
-        this._tmpUserData.forEach((user: string, idx: number) => {
-          this.accounts[user] = {
-              username: user,
-              accountId: result[idx],
-              donor: (idx < 5) ? true : false,
-              authenticated: false
+        console.log(result)
+        this.abi = Charity.abi
+        //localStorage.setItem('abi', JSON.stringify(this.abi))
+        this.charityContract = new this.web3.eth.Contract(this.abi, '0x8c1091862B838060D46b32373DDD5F208a636420')
+        //localStorage.setItem('charityContract', JSON.stringify(this.charityContract))
+        result.forEach((accountId: string, idx: number) => {
+          if(idx>0){
+            this.accounts[result[idx].toLowerCase()] = {
+                username: this._tmpUserData[idx-1],
+                donor: (idx < 6) ? true : false,
+                authenticated: false
+            }
           }
         })
+        console.log(this.accounts)
       } catch (e) {
-        throw new Error("Couldn't connect to server")
+        //throw new Error("Couldn't connect to server")
+        console.error(e)
       }
     },
     async pushNewCase(accountId: string, detailsHash: string, imageHash: string, target: number) {
         try {
+            console.log('------Arguments---------')
+            console.log(accountId)
+            console.log(imageHash)
+            console.log(detailsHash)
+            console.log('---------------')
             const weiAmount = this.web3.utils.toWei(target.toString(), 'ether');
             const receipt = await this.charityContract.methods.createCaseByBeneficiary(
               weiAmount,
               detailsHash,
               imageHash
-            ).send({from: accountId, gas: 200000})
+            ).send({from: accountId, gas: 2000000})
             console.log('------Receipt---------')
             console.log(receipt)
             console.log('-------Methods---------')
@@ -87,14 +100,31 @@ export const useCryptoStore = defineStore("crypto", {
         console.log(error)
       }
     },
-    setCurrentSession(authenticatedUserId: string) {
-      this.currentSession = {
-        username: authenticatedUserId,
-        ...this.accounts[authenticatedUserId]
+    async setCurrentSession() {
+      try {
+        let loggedIn: any[] = []
+        if(window.ethereum) {
+          await window.ethereum.request({method: "wallet_requestPermissions", params: [{ eth_accounts: {} }]})
+          loggedIn = await window.ethereum.request({method: "eth_requestAccounts"})
+          console.log('you have metamask')
+          console.log(loggedIn)
+          this.currentSession = {
+            accountId: loggedIn[0].toLowerCase(),
+            username: this.accounts[loggedIn[0].toLowerCase()].username,
+            donor: this.accounts[loggedIn[0].toLowerCase()].donor
+          }
+          this.accounts[loggedIn[0].toLowerCase()].authenticated = true
+          localStorage.setItem('activeSession', JSON.stringify(this.currentSession))
+          console.log(this.currentSession)
+        }
+      }catch (e) {
+        console.error(e)
       }
+      
     },
-    flushCurrentSession() {
+    async flushCurrentSession() {
       this.currentSession = null
+      localStorage.clear()
     },
     async getBalance() {
       //setLoader()
@@ -106,5 +136,11 @@ export const useCryptoStore = defineStore("crypto", {
         console.error(e);
       }
     },
+    loadActiveSession() {
+      const storedActiveSession = localStorage.getItem('activeSession');
+      if (storedActiveSession) {
+        this.currentSession = JSON.parse(storedActiveSession)
+      }
+    }
   },
 });

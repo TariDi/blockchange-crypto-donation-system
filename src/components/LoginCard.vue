@@ -27,7 +27,7 @@
                 type="submit"
                 label="Submit"
                 :loading="submitLoading"
-                @click="attemptLoginDonor"
+                @click="attemptLogin"
               />
             </div>
           </div>
@@ -56,7 +56,7 @@
                 type="submit"
                 label="Submit"
                 :loading="submitLoading"
-                @click="attemptLoginBeneficiary"
+                @click="attemptLogin"
               />
             </div>
           </div>
@@ -98,16 +98,25 @@ export default class LoginCard extends Vue {
   currentTheme = ref("lara-light-teal");
   PrimeVue = usePrimeVue();
 
-  store = useCryptoStore();
+  store = useCryptoStore()
 
-  async attemptLoginDonor() {
+  mounted () {
+    this.store.initialize()
+  }
+
+  async attemptLogin() {
     console.log(this.value)
     this.submitLoading = true;
-    this.authenticate(true)
+    this.authenticate()
     .then((result) => {
       if(result){
-        this.store.setCurrentSession(this.value)
-        this.$router.push({name: "donor", params: {username: this.value}})
+        //this.store.setCurrentSession(this.value)
+        this.$router.push(
+          {
+            name: this.store.currentSession.donor? "donor" : "beneficiary",
+            params: {username: this.store.currentSession.username}
+          }
+        )
       }
     })
     .catch((error) => {
@@ -120,36 +129,28 @@ export default class LoginCard extends Vue {
     //await this.store.getBalance()
   }
 
-  async attemptLoginBeneficiary() {
-    this.submitLoading = true
-    this.authenticate(false)
-    .then((result) => {
-      if(result){
-        this.store.setCurrentSession(this.value)
-        this.$router.push({name: "donor", params: {username: this.value}})
-      }
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-    .finally(()=> {
-      this.submitLoading = false
-    })
-  }
+  // async attemptLoginBeneficiary() {
+  //   this.submitLoading = true
+  //   this.authenticate(false)
+  //   .then((result) => {
+  //     if(result){
+  //       //this.store.setCurrentSession()
+  //       this.$router.push({name: "beneficiary", params: {username: this.store.currentSession.username}})
+  //     }
+  //   })
+  //   .catch((error) => {
+  //     console.error(error)
+  //   })
+  //   .finally(()=> {
+  //     this.submitLoading = false
+  //   })
+  // }
 
-  async authenticate(isDonor: boolean) {
+  async authenticate() {
     return new Promise(async (resolve, reject) => {
-      this.store.initialize()
+      this.store.setCurrentSession()
       .then(() => {
-        if(!this.store.currentSession) {
-          if(this.store.accounts[this.value] !== undefined && this.store.accounts[this.value].donor === isDonor){
-            resolve(true)
-          } else {
-          reject(new Error("Could not authenticate user."))
-          }
-        } else {
-          reject(new Error("Log out of existing session."))
-        }
+        resolve(true)
       })
       .catch(() => {
         reject(new Error("Could not connect to server."))
