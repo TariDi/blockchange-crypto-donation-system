@@ -72,7 +72,7 @@ export default class CharityCard extends Vue {
   caseDetails = {title: '', description: '', createdBy: ''}
 
   async mounted () {
-    this.caseDetails = await getCaseDetails(this.charity.imageHash)
+    this.caseDetails = await getCaseDetails(this.charity.detailsHash)
   }
 
   convertWeiToEther(weiAmount) {
@@ -98,7 +98,7 @@ export default class CharityCard extends Vue {
   }
 
   get imageLink() {
-    return getCaseImage(this.charity.detailsHash)
+    return getCaseImage(this.charity.imageHash)
   }
 
   get details() {

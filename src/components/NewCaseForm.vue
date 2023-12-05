@@ -122,7 +122,7 @@ export default class NewCaseForm extends Vue {
     //this.downloadImageLink = getCaseDetails('Qma8CWYsSucSNCz7chztuBGssoBDAdkeYsu97jWNFibVYq', 'QmbHuPLWFY4YXBciPKUwGMaSQ4yR5o3iNKtEy6Tu2cjP5T')
     //this.downloadImageLink
 
-    await this.store.pushNewCase(this.store.currentSession.accountId, imageHash, detailsHash, this.targetAmount)
+    await this.store.pushNewCase(this.store.currentSession.accountId, detailsHash, imageHash, this.targetAmount)
 
   }
 
