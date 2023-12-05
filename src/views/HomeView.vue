@@ -1,5 +1,8 @@
 <template>
   <div class="main-page">
+    <template v-if="store.refreshLoading">
+    </template>
+    <template v-else>
     <div class="header">
       <p-toolbar class="bg-teal-500 shadow-4 border-none">
         <template #start>
@@ -22,6 +25,7 @@
         <router-view />
       </div>
     </main>
+  </template>
   </div>
 </template>
 
@@ -32,11 +36,13 @@ import Navigation from "../components/Navigation.vue";
 import { RouterView } from "vue-router";
 import { onMounted } from 'vue'
 import { useCryptoStore } from "@/stores/crypto";
+import { ref } from "vue";
+
+const store = ref(useCryptoStore())
 
 onMounted(async () => {
-  const store = useCryptoStore()
-  if(!store.web3) {
-    await store.initialize()
+  if(!store.value.web3 || !store.value.charityContract) {
+    await store.value.initialize()
   }
 })
 </script>

@@ -1,4 +1,7 @@
 <template>
+  <template v-if="store.refreshLoading">
+  </template>
+  <template v-else>
   <p-menu
     :model="menuItems"
     class="w-full h-full md:w-15rem border-none shadow-3"
@@ -27,6 +30,7 @@
       </p-button>
     </template>
   </p-menu>
+</template>
 </template>
 
 <script lang="ts">
@@ -122,9 +126,9 @@ export default class Navigation extends Vue {
       ],
     },
     { separator: true },
-  ]);
+  ])
 
-  mounted() {
+  mounted () {
     this.rootPath = window.location.pathname.split("/")[1]
     console.log(this.$route.params)
   }

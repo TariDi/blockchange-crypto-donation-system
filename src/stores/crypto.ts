@@ -10,21 +10,24 @@ export const useCryptoStore = defineStore("crypto", {
     accounts: {} as any,
     loader: false,
     balance: 0,
-    web3: localStorage.getItem('web3Instance') as Web3 | null,
+    web3: null as Web3 | null,
     accountId: "",
-    abi: localStorage.getItem('abi') as AbiItem[] | null,
-    charityContract: localStorage.getItem('charityContract'),
+    abi: null as AbiItem[] | null,
+    charityContract: null,
     _tmpUserData: ['alice0130', 'bob0228', 'carol0315', 'david0420', 'erin0506',
     'fr@nk0609', 'grace0723', 'heidi0811', 'ivan0927', 'james1010'] as any,
-    currentSession: localStorage.getItem('activeSession') as any
+    currentSession: JSON.parse(localStorage.getItem('activeSession')) as any,
+    refreshLoading: false
 
   }),
   actions: {
     async initialize() {
+      this.refreshLoading = true
       try {
         this.web3 = new Web3("http://localhost:7545")
         //localStorage.setItem('web3Instance', JSON.stringify(this.web3))
         const result = await this.web3.eth.getAccounts()
+        this.currentSession = JSON.parse(localStorage.getItem('activeSession'))
         console.log(result)
         this.abi = Charity.abi
         //localStorage.setItem('abi', JSON.stringify(this.abi))
@@ -35,7 +38,7 @@ export const useCryptoStore = defineStore("crypto", {
             this.accounts[result[idx].toLowerCase()] = {
                 username: this._tmpUserData[idx-1],
                 donor: (idx < 6) ? true : false,
-                authenticated: false
+                authenticated: result[idx] === this.currentSession.accountId? true : false
             }
           }
         })
@@ -43,6 +46,8 @@ export const useCryptoStore = defineStore("crypto", {
       } catch (e) {
         //throw new Error("Couldn't connect to server")
         console.error(e)
+      } finally {
+        this.refreshLoading = false
       }
     },
     async pushNewCase(accountId: string, detailsHash: string, imageHash: string, target: number) {
@@ -76,10 +81,12 @@ export const useCryptoStore = defineStore("crypto", {
     },
     async loadActiveCases() {
       try {
+        if (this.charityContract) {
         const getActiveCases = await this.charityContract.methods.listActiveCases().call()
         console.log("***********active cases*****************")
-        console.log(getActiveCases);
-        return getActiveCases;
+        console.log(getActiveCases)
+        return getActiveCases
+        }
       } catch(error) {
         console.log(error)
       }
