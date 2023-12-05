@@ -2,7 +2,10 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import CharityLayout from "../components/CharityLayout.vue";
 import DonationsLayout from "../components/DonationsLayout.vue";
-import NewCasePage from "../views/NewCasePage.vue";
+import NewCasePage from "../views/NewCasePage.vue"
+import { useCryptoStore } from "@/stores/crypto"
+
+//const store = useCryptoStore()
 
 const requireLogin = (to, from, next) => {
   //console.log(from)
@@ -16,43 +19,57 @@ const requireLogin = (to, from, next) => {
   } else {
     next("/"); // Redirect to the login page if not authenticated
   }
-};
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/donor",
+      path: "/donor/:username/",
+      name: "donor",
       component: HomeView,
       beforeEnter: requireLogin,
-      redirect: "/donor/charities",
+      redirect: to => ({
+        name: "charities",
+        params: {username: to.params.username}
+      }),
       children: [
         {
           path: "charities",
+          name: "charities",
           component: CharityLayout,
         },
         {
           path: "donations",
+          name: "donations",
           component: DonationsLayout,
         },
       ],
     },
     {
-      path: "/beneficiary",
+      path: "/beneficiary/:username/",
+      name: "beneficiary",
       component: HomeView,
       beforeEnter: requireLogin,
-      redirect: "/beneficiary/requests",
+      redirect: to => ({
+        name: "requests",
+        params: {username: to.params.username}
+      }),
+      props: true,
       children: [
         {
           path: "dashboard",
+          name: "dashboard",
           component: CharityLayout,
         },
         {
           path: "requests",
+          name: "requests",
           component: DonationsLayout,
         },
         {
           path: "newcase",
+          name: "newcase",
           component: NewCasePage,
         },
       ],
@@ -67,6 +84,15 @@ const router = createRouter({
       component: () => import("../views/LoginView.vue"),
     },
   ],
-});
+})
+
+// router.beforeEach((to, from) => {
+//   console.log(from)
+//   // if(to.params === store.currentSession.username){
+//   //   return true
+//   // }
+//   return false
+// })
+
 
 export default router;

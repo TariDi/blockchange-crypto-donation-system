@@ -3,7 +3,7 @@ node_modules/
   
 # Local Truffle build artifacts
 build/*
-src/abis/*
+src/abis/
   
 # Environment-specific files
 .env

@@ -2,56 +2,40 @@
   <div class="wrapper">
     <p-card style="width: 25em">
       <template #header>
-        <img
-          alt="user header"
-          src="@/assets/best-fundraising-websites.png"
-          width="400"
-        />
+        <img alt="user header" :src="imageLink" width="400" />
       </template>
-      <template #title> Case Name </template>
-      <template #subtitle> Education </template>
-      <template #content>
-        <p class="m-0">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore
-          sed consequuntur error repudiandae numquam deserunt quisquam repellat
-          libero asperiores earum nam nobis, culpa ratione quam perferendis
-          esse, cupiditate neque quas!
-        </p>
+      <template #title >{{ details.title }}</template>
+      <template #subtitle >
+        Created by - {{ details.createdBy }}
+      </template>
+      <template #content v-if="caseDetails !== undefined">
+        <div class="mb-4">
+          {{ details.description }}
+        </div>
+        <div class="mb-4">
+          <ProgressBar :value="calcPercent(convertWeiToEther(charity.currentAmount), convertWeiToEther(charity.targetAmount))"> {{ convertWeiToEther(charity.currentAmount) }} </ProgressBar>
+          <div class="p-1 flex flex-row justify-content-between">
+            <span class="text-xs font-normal"> Raised: {{ convertWeiToEther(charity.currentAmount) }} </span>
+            <span class="text-xs font-bold"> Target: {{ convertWeiToEther(charity.targetAmount) }} </span>
+          </div>
+        </div>
       </template>
       <template #footer>
-        <p-button
-          icon="pi pi-money-bill"
-          label="Donate"
-          @click="visible = true"
-        />
-        <p-button
-          icon="pi pi-bookmark"
-          label="Bookmark"
-          severity="secondary"
-          style="margin-left: 0.5em"
-        />
+        <p-button icon="pi pi-money-bill" label="Donate" @click="visible = true" />
+        <p-button icon="pi pi-bookmark" label="Bookmark" severity="secondary" style="margin-left: 0.5em" />
       </template>
     </p-card>
-    <Dialog
-      v-model:visible="visible"
-      modal
-      header="Make Donation -> Charity Name"
-      :style="{ width: '50rem' }"
-      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-    >
+    <Dialog v-model:visible="visible" modal :header="'Make Donation -> ' + details.createdBy"
+      :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <div class="flex gap-3">
         <InputGroup>
-          <InputNumber
-            v-model="donationAmount"
-            inputId="minmaxfraction"
-            :minFractionDigits="2"
-            :maxFractionDigits="5"
-          />
+          <InputNumber v-model="donationAmount" inputId="minmaxfraction" :minFractionDigits="2" :maxFractionDigits="5" />
           <InputGroupAddon>ETH</InputGroupAddon>
         </InputGroup>
-        <p-button icon="pi pi-check" label="Confirm" @click="visible = false" />
+        <p-button icon="pi pi-check" label="Confirm" @click="onConfirm" />
       </div>
     </Dialog>
+
   </div>
 </template>
 
@@ -62,7 +46,10 @@ import Dialog from "primevue/dialog";
 import InputGroup from "primevue/inputgroup";
 import InputGroupAddon from "primevue/inputgroupaddon";
 import InputNumber from "primevue/inputnumber";
-import { Component, Vue } from "vue-facing-decorator";
+import { Component, Prop, Vue } from "vue-facing-decorator";
+import { useCryptoStore } from "@/stores/crypto"
+import { getCaseImage, getCaseDetails } from "@/api/pinata.api";
+import ProgressBar from "primevue/progressbar";
 
 @Component({
   components: {
@@ -72,10 +59,57 @@ import { Component, Vue } from "vue-facing-decorator";
     InputGroup,
     InputGroupAddon,
     InputNumber,
+    ProgressBar
   },
 })
 export default class CharityCard extends Vue {
-  visible = false;
+  @Prop()
+  charity!: any
+
+  visible = false
+  donationAmount = 0
+  store = useCryptoStore()
+  caseDetails = {title: '', description: '', createdBy: ''}
+
+  async mounted () {
+    this.caseDetails = await getCaseDetails(this.charity.detailsHash)
+  }
+
+  convertWeiToEther(weiAmount) {
+    const weiAsNumber = Number(weiAmount)
+    return weiAsNumber / 1e18
+  }
+
+  calcPercent(current, target) {
+    return current*100/target
+  }
+
+  async onConfirm() {
+    const donationData = {
+      amount: this.donationAmount,
+      caseId: this.charity.id
+    };
+
+    // console.log(this.uploadedImage)
+    console.log("donation data!!")
+    console.log(typeof donationData.caseId)
+
+    await this.store.donateToCase(this.store.currentSession.accountId, donationData.amount, donationData.caseId);
+  }
+
+  get imageLink() {
+    return getCaseImage(this.charity.imageHash)
+  }
+
+  get details() {
+    if(this.caseDetails) {
+      return this.caseDetails
+    }
+    return {title: '', description: '', createdBy: ''}
+  }
+
+
+
 }
 </script>
 

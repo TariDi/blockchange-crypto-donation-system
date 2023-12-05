@@ -10,6 +10,7 @@ contract Charity {
     struct DonationCase {
         uint256 id;
         uint256 targetAmount;
+        uint256 currentAmount;
         CaseStatus status;
         address beneficiary;
         string detailsHash;
@@ -19,7 +20,7 @@ contract Charity {
     address public trustee;
     uint256 private nextCaseId;
     mapping(uint256 => DonationCase) public cases;
-    mapping(uint256 => uint256) public currentAmount; // Tracks the amount collected for each case
+    uint256[] private activeCaseIds;
 
     event CaseCreated(uint256 caseId, address createdBy, uint256 timestamp);
     event CaseCompleted(uint256 caseId);
@@ -31,7 +32,7 @@ contract Charity {
     );
 
     constructor() {
-        trustee = msg.sender; // The creator of the contract is the trustee
+        trustee = msg.sender;
     }
 
     function createCaseByBeneficiary(
@@ -47,10 +48,12 @@ contract Charity {
             status: CaseStatus.InProgress,
             beneficiary: msg.sender,
             detailsHash: _detailsHash,
-            imageHash: _imageHash
+            imageHash: _imageHash,
+            currentAmount: 0
         });
 
         cases[nextCaseId] = newCase;
+        activeCaseIds.push(nextCaseId);
         emit CaseCreated(nextCaseId, msg.sender, block.timestamp);
         nextCaseId++;
     }
@@ -64,11 +67,12 @@ contract Charity {
         require(msg.sender != trustee, "Charity cannot be a donor");
         require(msg.value > 0, "Donation must be greater than 0");
 
-        currentAmount[_caseId] += msg.value;
-        payable(cases[_caseId].beneficiary).transfer(msg.value); // Transfer the donation amount to the beneficiary
+        cases[_caseId].currentAmount += msg.value;
+        payable(cases[_caseId].beneficiary).transfer(msg.value);
 
-        if (currentAmount[_caseId] >= cases[_caseId].targetAmount) {
+        if (cases[_caseId].currentAmount >= cases[_caseId].targetAmount) {
             cases[_caseId].status = CaseStatus.Completed;
+            removeActiveCase(_caseId);
             emit CaseCompleted(_caseId);
         }
 
@@ -77,21 +81,20 @@ contract Charity {
 
 
     function listActiveCases() public view returns (DonationCase[] memory) {
-        uint256 activeCount = 0;
-        for (uint256 i = 0; i < nextCaseId; i++) {
-            if (cases[i].status == CaseStatus.InProgress) {
-                activeCount++;
-            }
-        }
-
-        DonationCase[] memory activeCases = new DonationCase[](activeCount);
-        uint256 currentIndex = 0;
-        for (uint256 i = 0; i < nextCaseId; i++) {
-            if (cases[i].status == CaseStatus.InProgress) {
-                activeCases[currentIndex] = cases[i];
-                currentIndex++;
-            }
+        DonationCase[] memory activeCases = new DonationCase[](activeCaseIds.length);
+        for (uint256 i = 0; i < activeCaseIds.length; i++) {
+            activeCases[i] = cases[activeCaseIds[i]];
         }
         return activeCases;
+    }
+
+    function removeActiveCase(uint256 _caseId) private {
+        for (uint256 i = 0; i < activeCaseIds.length; i++) {
+            if (activeCaseIds[i] == _caseId) {
+                activeCaseIds[i] = activeCaseIds[activeCaseIds.length - 1];
+                activeCaseIds.pop();
+                break;
+            }
+        }
     }
 }

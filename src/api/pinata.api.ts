@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const BASE_URL = 'https://api.example.com'
 
+const DEFAULT_IMG = 'Qma8CWYsSucSNCz7chztuBGssoBDAdkeYsu97jWNFibVYq'
+
 const keyRestrictions = {
     keyName: 'Signed Upload JWT',
     maxUses: 1,
@@ -24,25 +26,28 @@ const keyRestrictions = {
 
 
   export async function uploadFile(fileData) {
-    fileData.append(
-        'pinataOptions',
-        JSON.stringify({
-        cidVersion: 0,
-      }))
     try {
+      if(fileData) {
+        fileData.append(
+          'pinataOptions',
+          JSON.stringify({
+          cidVersion: 0,
+        }))
         const res = await axios.post(
-            "https://api.pinata.cloud/pinning/pinFileToIPFS", 
-            fileData,
-            {
-                headers: {
-                    'Content-Type': `multipart/form-data`,
-                    Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`
-                  }
-            }
+          "https://api.pinata.cloud/pinning/pinFileToIPFS", 
+          fileData,
+          {
+              headers: {
+                  'Content-Type': `multipart/form-data`,
+                  Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`
+                }
+          }
         )
-        return res.IpfsHash
+        return res.data.IpfsHash
+      }
+      return DEFAULT_IMG
     } catch (error) {
-        return "error"
+        window.alert(error)
     }
 
     // if (req.method === "POST") {
@@ -80,12 +85,36 @@ const keyRestrictions = {
                   }
             }
         )
-        console.log(res)
-        //return res.IpfsHash
+        //console.log(res)
+        return res.data.IpfsHash
     } catch (error) {
-        console.error(error)
+        window.alert(error)
     }
 
+  }
+
+  export function getCaseImage(imageHash: string) {
+    try {
+      // const res = await axios.get(
+      //   `${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}&download=true`
+      // )
+      console.log(`${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}`)
+      return `${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}`
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  export async function getCaseDetails(detailsHash: string) {
+    try {
+      const res = await axios.get (
+        `${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${detailsHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}`
+      )
+      console.log(res)
+      return res.data
+    } catch (error) {
+      console.error(error)
+    }
   }
 
 // } else if (req.method === "GET") {

@@ -27,7 +27,7 @@
                 type="submit"
                 label="Submit"
                 :loading="submitLoading"
-                @click="attemptLoginDonor"
+                @click="attemptLogin"
               />
             </div>
           </div>
@@ -56,7 +56,7 @@
                 type="submit"
                 label="Submit"
                 :loading="submitLoading"
-                @click="attemptLoginBeneficiary"
+                @click="attemptLogin"
               />
             </div>
           </div>
@@ -77,6 +77,7 @@ import PButton from "primevue/button";
 import { ref } from "vue";
 import { usePrimeVue } from "primevue/config";
 import { useCryptoStore } from "@/stores/crypto";
+import { error } from "console";
 
 @Component({
   components: {
@@ -97,41 +98,64 @@ export default class LoginCard extends Vue {
   currentTheme = ref("lara-light-teal");
   PrimeVue = usePrimeVue();
 
-  store = useCryptoStore();
+  store = useCryptoStore()
 
-  async attemptLoginDonor() {
+  mounted () {
+    this.store.initialize()
+  }
+
+  async attemptLogin() {
+    console.log(this.value)
     this.submitLoading = true;
-    await this.authenticate().then((result) => {
-      this.$router.push("/donor");
-    });
-    this.submitLoading = false;
-    await this.store.initialize();
-
-    this.store.setDonorAccount(true);
-    await this.store.getAccounts();
-    console.log(this.store.accountId);
+    this.authenticate()
+    .then((result) => {
+      if(result){
+        //this.store.setCurrentSession(this.value)
+        this.$router.push(
+          {
+            name: this.store.currentSession.donor? "donor" : "beneficiary",
+            params: {username: this.store.currentSession.username}
+          }
+        )
+      }
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+    .finally(()=> {
+      this.submitLoading = false
+    })
+    
     //await this.store.getBalance()
   }
 
-  async attemptLoginBeneficiary() {
-    this.submitLoading = true;
-    await this.authenticate().then((result) => {
-      this.$router.push("/beneficiary");
-    });
-
-    this.store.setDonorAccount(false);
-    await this.store.getAccounts();
-    console.log(this.store.accountId);
-    this.submitLoading = false;
-  }
+  // async attemptLoginBeneficiary() {
+  //   this.submitLoading = true
+  //   this.authenticate(false)
+  //   .then((result) => {
+  //     if(result){
+  //       //this.store.setCurrentSession()
+  //       this.$router.push({name: "beneficiary", params: {username: this.store.currentSession.username}})
+  //     }
+  //   })
+  //   .catch((error) => {
+  //     console.error(error)
+  //   })
+  //   .finally(()=> {
+  //     this.submitLoading = false
+  //   })
+  // }
 
   async authenticate() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.submitLoading = false;
-        resolve(true);
-      }, 2000); // Adjust the timeout duration as needed
-    });
+    return new Promise(async (resolve, reject) => {
+      this.store.setCurrentSession()
+      .then(() => {
+        resolve(true)
+      })
+      .catch(() => {
+        reject(new Error("Could not connect to server."))
+      })
+    })
   }
 
   // change current theme to next
@@ -154,6 +178,10 @@ export default class LoginCard extends Vue {
 
     // So current theme now:
     this.currentTheme.value = nextTheme;
+
+    //set a store function on login which sets the current session
+    //if anyone tries to access another user login that is not currently authenticated -- block
+    //save authenticated sessions
   }
 }
 </script>

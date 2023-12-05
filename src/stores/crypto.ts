@@ -3,10 +3,11 @@ import { Web3 } from "web3";
 import { ref } from "vue"; 
 import Charity from '../abis/Charity.json'
 import type { AbiItem } from '@/types'
+import detectEthereumProvider from '@metamask/detect-provider'
 
 export const useCryptoStore = defineStore("crypto", {
   state: () => ({
-    accounts: [] as any[],
+    accounts: {} as any,
     loader: false,
     balance: 0,
     web3: null as Web3 | null,
@@ -14,51 +15,61 @@ export const useCryptoStore = defineStore("crypto", {
     abi: null as AbiItem[] | null,
     charityContract: null,
     _tmpUserData: ['alice0130', 'bob0228', 'carol0315', 'david0420', 'erin0506',
-    'fr@nk0609', 'grace0723', 'heidi0811', 'ivan0927', 'james1010'] as any
+    'fr@nk0609', 'grace0723', 'heidi0811', 'ivan0927', 'james1010'] as any,
+    currentSession: JSON.parse(localStorage.getItem('activeSession')) as any,
+    refreshLoading: false
 
   }),
   actions: {
-    setAccountType(type: boolean) {
-      this.donorAccount = type;
-    },
     async initialize() {
+      this.refreshLoading = true
       try {
         this.web3 = new Web3("http://localhost:7545")
+        //localStorage.setItem('web3Instance', JSON.stringify(this.web3))
+        const result = await this.web3.eth.getAccounts()
+        this.currentSession = JSON.parse(localStorage.getItem('activeSession'))
+        console.log(result)
         this.abi = Charity.abi
-        this.charityContract = new this.web3.eth.Contract(this.abi, '0x940b35D5A13a658291FDD0201b002f0F20Ba0BF8')
+        //localStorage.setItem('abi', JSON.stringify(this.abi))
+        this.charityContract = new this.web3.eth.Contract(this.abi, '0x8c1091862B838060D46b32373DDD5F208a636420')
+        //localStorage.setItem('charityContract', JSON.stringify(this.charityContract))
+        result.forEach((accountId: string, idx: number) => {
+          if(idx>0){
+            this.accounts[result[idx].toLowerCase()] = {
+                username: this._tmpUserData[idx-1],
+                donor: (idx < 6) ? true : false,
+                authenticated: result[idx] === this.currentSession.accountId? true : false
+            }
+          }
+        })
+        console.log(this.accounts)
       } catch (e) {
-        console.error(e);
+        //throw new Error("Couldn't connect to server")
+        console.error(e)
+      } finally {
+        this.refreshLoading = false
       }
-    },
-    async getAccounts() {
-        this.web3.eth.getAccounts()
-        .then((result)=> {
-            this._tmpUserData.forEach((user: string, idx: number) => {
-                this.accounts.push({
-                    username: user,
-                    accountId: result[idx],
-                    donor: (idx < 5) ? true : false
-                })
-            })
-        })
-        .catch((error) => {
-            console.error("Couldn't connect to server.")
-        })
     },
     async pushNewCase(accountId: string, detailsHash: string, imageHash: string, target: number) {
         try {
+            console.log('------Arguments---------')
+            console.log(accountId)
+            console.log(imageHash)
+            console.log(detailsHash)
+            console.log('---------------')
+            const weiAmount = this.web3.utils.toWei(target.toString(), 'ether');
             const receipt = await this.charityContract.methods.createCaseByBeneficiary(
-                detailsHash,
-                imageHash,
-                target
-            ).send({from: accountId, gas: 200000})
-            // console.log('------Receipt---------')
-            // console.log(receipt)
-            // console.log('-------Methods---------')
-            // console.log(this.charityContract.methods)
-            // console.log('--------Events----------')
-            // console.log(this.charityContract.events)
-            // console.log('----------------------')
+              weiAmount,
+              detailsHash,
+              imageHash
+            ).send({from: accountId, gas: 2000000})
+            console.log('------Receipt---------')
+            console.log(receipt)
+            console.log('-------Methods---------')
+            console.log(this.charityContract.methods)
+            console.log('--------Events----------')
+            console.log(this.charityContract.events)
+            console.log('----------------------')
             if (receipt.events.CaseCreated) {
                 const { caseId, createdBy, timestamp } = receipt.events.CaseCreated.returnValues;
                 console.log(`CaseCreated event received: CaseId ${caseId}, CreatedBy ${createdBy}, Timestamp ${timestamp}`)
@@ -67,6 +78,60 @@ export const useCryptoStore = defineStore("crypto", {
         catch(error) {
             console.error(error)
         }
+    },
+    async loadActiveCases() {
+      try {
+        if (this.charityContract) {
+        const getActiveCases = await this.charityContract.methods.listActiveCases().call()
+        console.log("***********active cases*****************")
+        console.log(getActiveCases)
+        return getActiveCases
+        }
+      } catch(error) {
+        console.log(error)
+      }
+    },
+    async donateToCase(accountId: string, donateAmount: Number, caseId: string) {
+      try {
+        const weiAmount = this.web3.utils.toWei(donateAmount.toString(), 'ether');
+        const receipt = await this.charityContract.methods.donate(
+          caseId
+        ).send({from: accountId,value: weiAmount, gas: 200000})
+        console.log("*******************donate to Case************************")
+        console.log(receipt)
+        if (receipt.events.Donate) {
+          const { caseId, donatedBy, donatedAmount, timestamp } = receipt.events.Donate.returnValues;
+          console.log(`Donated event received: CaseId ${caseId}, donatedBy ${donatedBy}, donatedAmount ${donatedAmount}, Timestamp ${timestamp}`)
+      }
+      } catch(error) {
+        console.log(error)
+      }
+    },
+    async setCurrentSession() {
+      try {
+        let loggedIn: any[] = []
+        if(window.ethereum) {
+          await window.ethereum.request({method: "wallet_requestPermissions", params: [{ eth_accounts: {} }]})
+          loggedIn = await window.ethereum.request({method: "eth_requestAccounts"})
+          console.log('you have metamask')
+          console.log(loggedIn)
+          this.currentSession = {
+            accountId: loggedIn[0].toLowerCase(),
+            username: this.accounts[loggedIn[0].toLowerCase()].username,
+            donor: this.accounts[loggedIn[0].toLowerCase()].donor
+          }
+          this.accounts[loggedIn[0].toLowerCase()].authenticated = true
+          localStorage.setItem('activeSession', JSON.stringify(this.currentSession))
+          console.log(this.currentSession)
+        }
+      }catch (e) {
+        console.error(e)
+      }
+      
+    },
+    async flushCurrentSession() {
+      this.currentSession = null
+      localStorage.clear()
     },
     async getBalance() {
       //setLoader()
@@ -78,5 +143,11 @@ export const useCryptoStore = defineStore("crypto", {
         console.error(e);
       }
     },
+    loadActiveSession() {
+      const storedActiveSession = localStorage.getItem('activeSession');
+      if (storedActiveSession) {
+        this.currentSession = JSON.parse(storedActiveSession)
+      }
+    }
   },
 });

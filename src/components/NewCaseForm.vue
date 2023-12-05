@@ -5,34 +5,20 @@
         <div class="pt-4 pl-6 pr-6 text-4xl">Create A New Fund Request</div>
       </template>
       <template #content>
-        <div class="pr-6 pl-6 flex flex-column gap-6">
+        <div class="pr-6 pl-6 flex flex-column gap-4">
           <div class="flex flex-column gap-2">
             <label for="title">Title</label>
-            <InputText
-              id="title"
-              v-model="caseTitle"
-              placeholder="Give a name to your case"
-            />
+            <InputText id="title" v-model="caseTitle" placeholder="Give a name to your case" />
           </div>
           <div class="flex flex-column gap-2">
             <label for="desc">Description</label>
-            <TextArea
-              v-model="caseDescription"
-              placeholder="Briefly describe your case"
-              autoResize
-              rows="7"
-              cols="30"
-            />
+            <TextArea v-model="caseDescription" placeholder="Briefly describe your case" autoResize rows="7" cols="30" />
           </div>
           <div class="flex flex-column gap-2">
             <label for="target">Target Amount</label>
             <InputGroup>
-              <InputNumber
-                v-model="targetAmount"
-                inputId="minmaxfraction"
-                :minFractionDigits="2"
-                :maxFractionDigits="5"
-              />
+              <InputNumber v-model="targetAmount" inputId="minmaxfraction" :minFractionDigits="2"
+                :maxFractionDigits="5" />
               <InputGroupAddon>ETH</InputGroupAddon>
             </InputGroup>
           </div>
@@ -55,23 +41,12 @@
       <template #footer>
         <div class="pb-6 pl-6 pr-6">
           <p-button icon="pi pi-check" label="Submit" @click="onSubmit" />
-          <p-button
-            icon="pi pi-times"
-            label="Clear"
-            severity="secondary"
-            style="margin-left: 0.5em"
-          />
+          <p-button icon="pi pi-times" label="Clear" severity="secondary" style="margin-left: 0.5em" />
         </div>
       </template>
     </p-card>
-    <Dialog
-      v-model:visible="visible"
-      modal
-      header="Yay!"
-      :dismissableMask="true"
-      :closeOnEscape="true"
-      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-    >
+    <Dialog v-model:visible="visible" modal header="Yay!" :dismissableMask="true" :closeOnEscape="true"
+      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <div class="flex justify-content-center gap-3">
         <span>Case Successfully Created</span>
         <i class="pi pi-check success" />
@@ -96,6 +71,7 @@ import FileUpload from 'primevue/fileupload'
 import { ref } from "vue"
 import type { Ref } from 'vue'
 import { uploadFile, uploadCaseDetails } from '@/api/pinata.api'
+import { useCryptoStore } from "@/stores/crypto"
 
 @Component({
   components: {
@@ -118,32 +94,41 @@ export default class NewCaseForm extends Vue {
   image: any = null
   uploadedFile: string = ''
   uploadedImage = null
+  downloadImageLink = ''
 
-  
+  store = useCryptoStore()
+
   onUpload(e) {
     this.uploadedFile = e.formData.get('file').name
     this.uploadedImage = e.formData
   }
 
-  onSubmit() {
+  async onSubmit() {
     const textData = {
-      title: this.caseTitle,
-      description: this.caseDescription,
-        pinataMetadata: {
+      pinataContent: {
+        title: this.caseTitle,
+        description: this.caseDescription,
+        createdBy: this.store.currentSession.username
+      },
+      pinataMetadata: {
         name: this.caseTitle.replace(/[^a-zA-Z0-9]/g, '')
       }
     }
 
-    console.log(this.uploadedImage)
+    // console.log(this.uploadedImage)
     console.log(textData)
-    const imageHash = uploadFile(this.uploadedImage)
-    const detailsHash = uploadCaseDetails(textData)
+    const imageHash = await uploadFile(this.uploadedImage)
+    const detailsHash = await uploadCaseDetails(textData)
+    //this.downloadImageLink = getCaseDetails('Qma8CWYsSucSNCz7chztuBGssoBDAdkeYsu97jWNFibVYq', 'QmbHuPLWFY4YXBciPKUwGMaSQ4yR5o3iNKtEy6Tu2cjP5T')
+    //this.downloadImageLink
+
+    await this.store.pushNewCase(this.store.currentSession.accountId, detailsHash, imageHash, this.targetAmount)
 
   }
 
 
-  
-  
+
+
 }
 </script>
 
