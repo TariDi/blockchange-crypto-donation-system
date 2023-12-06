@@ -27,19 +27,31 @@ export const useCryptoStore = defineStore("crypto", {
         this.web3 = new Web3("http://localhost:7545")
         //localStorage.setItem('web3Instance', JSON.stringify(this.web3))
         const result = await this.web3.eth.getAccounts()
-        this.currentSession = JSON.parse(localStorage.getItem('activeSession'))
+        // this.currentSession = JSON.parse(localStorage.getItem('activeSession'))
+        this.currentSession = JSON.parse(localStorage.getItem('activeSession') || 'null');
         console.log(result)
         this.abi = Charity.abi
         //localStorage.setItem('abi', JSON.stringify(this.abi))
-        this.charityContract = new this.web3.eth.Contract(this.abi, '0x8c1091862B838060D46b32373DDD5F208a636420')
+        this.charityContract = new this.web3.eth.Contract(this.abi, '0xDc41b21A46cF07334208B80f285ef5AbC0c5eF5A')
+        
         //localStorage.setItem('charityContract', JSON.stringify(this.charityContract))
+        // result.forEach((accountId: string, idx: number) => {
+        //   if(idx>0){
+        //     this.accounts[result[idx].toLowerCase()] = {
+        //         username: this._tmpUserData[idx-1],
+        //         donor: (idx < 6) ? true : false,
+        //         authenticated: result[idx] === this.currentSession.accountId? true : false
+        //     }
+        //   }
+        // })
         result.forEach((accountId: string, idx: number) => {
           if(idx>0){
-            this.accounts[result[idx].toLowerCase()] = {
+            const lowerCaseAccountId = result[idx].toLowerCase();
+            this.accounts[lowerCaseAccountId] = {
                 username: this._tmpUserData[idx-1],
                 donor: (idx < 6) ? true : false,
-                authenticated: result[idx] === this.currentSession.accountId? true : false
-            }
+                authenticated: this.currentSession && lowerCaseAccountId === this.currentSession.accountId
+            };
           }
         })
         console.log(this.accounts)
@@ -86,6 +98,18 @@ export const useCryptoStore = defineStore("crypto", {
         console.log("***********active cases*****************")
         console.log(getActiveCases)
         return getActiveCases
+        }
+      } catch(error) {
+        console.log(error)
+      }
+    },
+    async getBeneficiaryCaseDetails(accountId: string) {
+      try {
+        if (this.charityContract) {
+        const getBeneficiaryCases = await this.charityContract.methods.getBeneficiaryCases(accountId).call()
+        console.log("***********beneficiary cases*****************")
+        console.log(getBeneficiaryCases)
+        return getBeneficiaryCases
         }
       } catch(error) {
         console.log(error)
