@@ -40,18 +40,11 @@
       </template>
       <template #footer>
         <div class="pb-6 pl-6 pr-6">
-          <p-button icon="pi pi-check" label="Submit" @click="onSubmit" />
-          <p-button icon="pi pi-times" label="Clear" severity="secondary" style="margin-left: 0.5em" />
+          <p-button icon="pi pi-check" label="Submit" @click="submitCase($event)" />
+          <p-button icon="pi pi-times" label="Clear" severity="secondary" style="margin-left: 0.5em" @click="clearForm($event)"/>
         </div>
       </template>
     </p-card>
-    <Dialog v-model:visible="visible" modal header="Yay!" :dismissableMask="true" :closeOnEscape="true"
-      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <div class="flex justify-content-center gap-3">
-        <span>Case Successfully Created</span>
-        <i class="pi pi-check success" />
-      </div>
-    </Dialog>
   </div>
 </template>
 
@@ -87,7 +80,6 @@ import { useCryptoStore } from "@/stores/crypto"
   },
 })
 export default class NewCaseForm extends Vue {
-  visible = false
   caseTitle: string = ''
   caseDescription = ''
   targetAmount: number = 0
@@ -101,6 +93,20 @@ export default class NewCaseForm extends Vue {
   onUpload(e) {
     this.uploadedFile = e.formData.get('file').name
     this.uploadedImage = e.formData
+  }
+
+  submitCase(event) {
+      this.$confirm.require({
+          target: event.currentTarget,
+          message: 'Are you sure you want to proceed?',
+          icon: 'pi pi-exclamation-triangle',
+          accept: async () => {
+              await this.onSubmit()
+          },
+          reject: () => {
+              this.$toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+          }
+      });
   }
 
   async onSubmit() {
@@ -122,9 +128,22 @@ export default class NewCaseForm extends Vue {
     
     await this.store.pushNewCase(this.store.currentSession.accountId, detailsHash, imageHash, this.targetAmount)
     .then((res) => {
-      
+      this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Case created.', life: 3000 })
+    })
+    .finally(() => {
+      this.caseTitle = ''
+      this.caseDescription = ''
+      this.targetAmount = 0
+      this.image = null
+      this.uploadedFile = ''
+      this.uploadedImage = null
+      this.downloadImageLink = ''
     })
 
+  }
+
+  clearForm(event) {
+    location.reload()
   }
 
 

@@ -1,5 +1,7 @@
 <template>
-  <template v-if="store.pastDonationsLoading || caseDetails.length === 0"></template>
+  <template v-if="store.pastDonationsLoading || casesLoading">
+        <ProgressSpinner style="width: 50vw; height: 50vh margin-top: 50vh"/>
+  </template>
   <template v-else>
     <template v-if="!store.donations || store.donations.length === 0">
       <p-card class="empty-state">
@@ -20,7 +22,7 @@
           >
             <div
               class="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4"
-              :class="{ 'border-top-1 surface-border': index > -1 }"
+              :class="{ 'border-top-1 surface-border': index > 0 }"
             >
               <div
                 class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4"
@@ -28,11 +30,11 @@
                 <div
                   class="flex flex-column align-items-center sm:align-items-start gap-3"
                 >
-                  <div class="text-2xl font-bold text-900">{{ caseDetails[index].title }}</div>
+                  <div class="text-2xl font-bold text-900">{{ caseDetails.length>0? caseDetails[index].title : ''}}</div>
                   <div class="flex align-items-center gap-3">
                     <span class="flex align-items-center gap-2">
                       <i class="pi pi-user"></i>
-                      <span class="font-semibold">{{ caseDetails[index].createdBy }}</span>
+                      <span class="font-semibold">{{ caseDetails.length>0? caseDetails[index].createdBy : '' }}</span>
                     </span>
                   </div>
                 </div>
@@ -64,6 +66,7 @@ import PCard from "primevue/card";
 import { getCaseDetails } from "@/api/pinata.api";
 import PTag from 'primevue/tag';
 import { format } from 'date-fns';
+import ProgressSpinner from "primevue/progressspinner";
 
 @Component({
   components: {
@@ -72,12 +75,14 @@ import { format } from 'date-fns';
     PButton,
     PTimeline,
     PCard,
-    PTag
+    PTag,
+    ProgressSpinner
   },
 })
 export default class DonationTable extends Vue {
-  donations= []
+
   caseDetails = []
+  casesLoading = false
   products = ref([
     {
       name: "Case1",
@@ -133,14 +138,18 @@ export default class DonationTable extends Vue {
 
   async mounted () {
     if(!this.store.refreshLoading) {
+      this.casesLoading = true
       await this.store.getDonations()
       .then(() => {
         this.store.donations.forEach(async (item) => {
-          let temp = await this.store.getCaseDetails(item.detailsHash)
-          this.caseDetails.push(temp)
+          await this.store.getCaseDetails(item.detailsHash)
+          .then((res) => {
+            this.caseDetails.push(res)
+          })
         })
-        console.log('case detaisl', this.caseDetails)
+        console.log('case details', this.caseDetails)
       })
+      .finally(() => this.casesLoading = false)
     }
   }
 

@@ -77,12 +77,12 @@ export default class Navigation extends Vue {
         {
           label: "Settings",
           icon: "pi pi-cog",
-          route: "login",
+          route: "/",
         },
         {
           label: "Logout",
           icon: "pi pi-sign-out",
-          route: "login",
+          route: "/",
         },
       ],
     },
@@ -116,12 +116,12 @@ export default class Navigation extends Vue {
         {
           label: "Settings",
           icon: "pi pi-cog",
-          route: "login",
+          route: "/",
         },
         {
           label: "Logout",
           icon: "pi pi-sign-out",
-          route: "login",
+          route: "/",
         },
       ],
     },
@@ -145,9 +145,9 @@ export default class Navigation extends Vue {
   }
 
   navigate(to) {
-    if(to === 'login'){
+    if(to === '/'){
       this.store.flushCurrentSession()
-      this.$router.push({name: "login"})
+      this.$router.push("/")
     }
     this.$router.push({name: to, params: {username: this.store.currentSession.username}})
   }

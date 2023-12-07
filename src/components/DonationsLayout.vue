@@ -1,5 +1,5 @@
 <template>
-  <div class="donations-layout shadow-3">
+  <div class="donations-layout">
     <donation-table />
   </div>
 </template>

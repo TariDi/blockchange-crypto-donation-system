@@ -2,11 +2,21 @@
     <template v-if="loadingbeneficiaryCases">
     </template>
     <template v-else>
-    <div class="requests-layout">
-      <div v-for="(charity, index) in beneficiaryCases" :key="index">
-        <requests-card :charity="charity" />
-      </div>
-    </div>
+      <template v-if="!beneficiaryCases || beneficiaryCases.length === 0">
+        <p-card class="empty-state">
+          <template #content>
+          <i class="pi pi-exclamation-circle" style="font-size: 15rem; opacity: 0.5;" />
+          <span class="text-l">No Requests Found</span>
+        </template>
+        </p-card>
+      </template>
+      <template v-else>
+        <div class="requests-layout">
+          <div v-for="(charity, index) in beneficiaryCases" :key="index">
+            <requests-card :charity="charity" :loading="loadingbeneficiaryCases"/>
+          </div>
+        </div>
+      </template>
   </template>
   </template>
   
@@ -14,10 +24,12 @@
   import { Component, Vue } from "vue-facing-decorator";
   import RequestsCard from "./RequestsCard.vue";
   import { useCryptoStore } from "@/stores/crypto";
+  import PCard from "primevue/card";
   
   @Component({
     components: {
       RequestsCard,
+      PCard
     },
   })
   export default class RequestsLayout extends Vue {
@@ -63,8 +75,22 @@
   .requests-layout {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: start;
     gap: 48px;
+    margin-left: 5vw;
+  }
+
+  .empty-state {
+  padding:50px;
+  border-radius: 4px;
+}
+
+.empty-state .p-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
   }
   </style>
   

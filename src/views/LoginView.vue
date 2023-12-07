@@ -23,17 +23,15 @@ import LoginCard from "../components/LoginCard.vue";
     </div>
     <main>
       <login-card />
-      <img src="@/assets/donation-money-vector-flat-illustration.webp" width="1080"/>
     </main>
   </div>
 </template>
 
 <style lang="scss" scoped>
+
 .header {
   grid-column: 1/3;
   grid-row: 1/2;
-  margin-bottom: 50px;
-  padding-bottom: 50px;
   position: sticky;
   position: -webkit-sticky;
   z-index: 10000;
@@ -41,8 +39,8 @@ import LoginCard from "../components/LoginCard.vue";
 }
 
 main {
-  grid-column: 2/3;
-  grid-row: 2/-1;
+  grid-column: 1/3;
+  grid-row: 2/6;
   display: flex;
 }
 </style>

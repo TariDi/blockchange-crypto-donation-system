@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper">
-      <template v-if="store.pinataDetailsLoading">
+      <template v-if="store.pinataDetailsLoading || loading">
         <p-card style="width: 25em height: 30em">
           <template #header>
             <Skeleton width="27em" height="10em"></Skeleton>
@@ -15,14 +15,14 @@
       </template>
 
       <template v-else>
-        <p-card style="width: 25em">
+        <p-card style="width: 28em">
           <template #header>
-            <img alt="user header" :src="imageLink" width="400" />
+            <img alt="user header" :src="imageLink" width="448" />
           </template>
           <template #title >{{ details.title }}</template>
-          <!-- <template #subtitle >
-            Created by - {{ details.createdBy }}
-          </template> -->
+          <template #subtitle >
+            Created on {{ formattedTime(charity.timestamp) }}
+          </template>
           <template #content v-if="caseDetails !== undefined">
             <div class="mb-4">
               {{ details.description }}
@@ -57,6 +57,7 @@
   import { getCaseImage, getCaseDetails } from "@/api/pinata.api";
   import ProgressBar from "primevue/progressbar";
   import Skeleton from "primevue/skeleton";
+  import { format } from 'date-fns'
   
   
   @Component({
@@ -79,6 +80,9 @@
     
     @Prop()
     charity!: any
+
+    @Prop({default: true})
+    loading!: boolean
 
     caseDetails = {title: '', description: ''}
   
@@ -107,7 +111,13 @@
       return this.store.getCaseImage(this.charity.imageHash)
     }
   
-    events = ref(["Pending", "Verified", "Received"]);
+    formattedTime(timestamp) {
+      if(timestamp) {
+        const myDate = new Date(Number(timestamp)*1000); // Replace with your date object
+        return format(myDate, 'MM/dd/yyyy');
+      }
+      else return ''
+    }
   }
   </script>
   

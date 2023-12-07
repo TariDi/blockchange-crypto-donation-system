@@ -1,6 +1,8 @@
 <template>
   <p-card class="login">
-    <template #title>Login</template>
+    <template #header>
+      <span class="text-xl">Give Hope, Change Lives</span>
+    </template>
     <template #content>
       <!--<p-tab-view>
         <p-tab-panel header="Donor Account">
@@ -62,12 +64,16 @@
           </div>
         </p-tab-panel>
       </p-tab-view>-->
+      
+      <div class="login-view">
       <p-button
-                type="submit"
-                label="Connect with MetaMask"
-                :loading="submitLoading"
-                @click="attemptLogin"
-              />
+        type="submit"
+        label="Connect with MetaMask"
+        :loading="submitLoading"
+        @click="attemptLogin"
+      />
+      <img src="@/assets/donation-money-vector-flat-illustration.webp" class="login-image"/>
+      </div>
     </template>
   </p-card>
 </template>
@@ -196,6 +202,21 @@ export default class LoginCard extends Vue {
 .login {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding-top: 36px;
+  justify-content: center;
+  justify-items: center;
+  align-content: center;
+  align-items: center;
+}
+
+.login-view {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+  gap: 36px;
 }
 
 .login-details {
@@ -209,6 +230,10 @@ export default class LoginCard extends Vue {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+}
+
+.login-image {
+  width: 52vw;
 }
 
 .p-password.p-inputwrapper {

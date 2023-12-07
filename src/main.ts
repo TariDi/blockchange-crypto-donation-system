@@ -13,6 +13,7 @@ import "primeicons/primeicons.css"; //icons
 
 const app = createApp(App);
 
+app.config.warnHandler = (msg, vm, trace) => {};
 app.use(createPinia());
 app.use(router);
 app.use(PrimeVue);

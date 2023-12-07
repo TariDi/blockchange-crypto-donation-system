@@ -25,6 +25,7 @@ export const useCryptoStore = defineStore("crypto", {
     pinataDetailsLoading: false,
     pinataImageLoading: false,
     donateLoading: false,
+    pastCasesLoading: false
   }),
   actions: {
     async initialize() {
@@ -90,9 +91,24 @@ export const useCryptoStore = defineStore("crypto", {
     async loadActiveCases() {
       try {
         if (this.charityContract) {
-        const getActiveCases = await this.charityContract.methods.listActiveCases().call()
-        // console.log("***********active cases*****************")
-        // console.log(getActiveCases)
+        const getActiveCases = await this.charityContract.methods.listActiveCases().call();
+        getActiveCases.forEach(async (value, idx) => {
+          //console.log(value)
+          const event = await this.charityContract.getPastEvents(
+            "CaseCreated",
+            {
+              filter: { caseId: value.id },
+              fromBlock: 0,
+              toBlock: 'latest'
+            }
+          )
+          if(event.length > 0) {
+            //console.log('event', event)
+            value.timestamp = event[0].returnValues.timestamp
+          }
+        })
+        console.log("***********active cases*****************")
+        console.log(getActiveCases)
         return getActiveCases
         }
       } catch(error) {
@@ -185,6 +201,20 @@ export const useCryptoStore = defineStore("crypto", {
       try {
         if (this.charityContract) {
         const getBeneficiaryCases = await this.charityContract.methods.getBeneficiaryCases(accountId).call()
+        getBeneficiaryCases.forEach(async (value) => {
+          const event = await this.charityContract.getPastEvents(
+            "CaseCreated",
+            {
+              filter: { caseId: value.id },
+              fromBlock: 0,
+              toBlock: 'latest'
+            }
+          )
+          if(event.length > 0) {
+            //console.log('event', event)
+            value.timestamp = event[0].returnValues.timestamp
+          }
+        })
         console.log("***********beneficiary cases*****************")
         console.log(getBeneficiaryCases)
         return getBeneficiaryCases
