@@ -4,7 +4,7 @@
   <template v-else>
   <div class="charity-layout">
     <div v-for="(charity, index) in activeCases" :key="index">
-      <charity-card :charity="charity" />
+      <charity-card :charity="charity" @confirm-donation="onConfirm"/>
     </div>
   </div>
 </template>
@@ -32,7 +32,7 @@ export default class CharityLayout extends Vue {
     this.loadingActiveCases = true
     this.store.loadActiveCases()
     .then((cases) => {
-      console.log("Loaded active cases:", cases)
+      // console.log("Loaded active cases:", cases)
       if (cases && Array.isArray(cases)) {
         this.activeCases = cases;
       } else {
@@ -46,8 +46,8 @@ export default class CharityLayout extends Vue {
       this.loadingActiveCases = false
     })
 
-    console.log("checking reactive property")
-    console.log(this.activeCases);
+    // console.log("checking reactive property")
+    // console.log(this.activeCases);
   }
 
   get activeCaseList() {
@@ -56,6 +56,25 @@ export default class CharityLayout extends Vue {
     } else {
       []
     }
+  }
+
+  onConfirm() {
+    this.loadingActiveCases = true
+    this.store.loadActiveCases()
+    .then((cases) => {
+      // console.log("Loaded active cases:", cases)
+      if (cases && Array.isArray(cases)) {
+        this.activeCases = cases;
+      } else {
+        console.error("Invalid data format for active cases");
+      }
+    })
+    .catch((error) => {
+      console.error("Failed to load active cases:", error);
+    })
+    .finally(() => {
+      this.loadingActiveCases = false
+    })
   }
 
 }

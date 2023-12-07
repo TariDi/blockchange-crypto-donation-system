@@ -130,7 +130,7 @@ export default class Navigation extends Vue {
 
   mounted () {
     this.rootPath = window.location.pathname.split("/")[1]
-    console.log(this.$route.params)
+    // console.log(this.$route.params)
   }
 
   get accountType() {

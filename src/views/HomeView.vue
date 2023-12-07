@@ -3,29 +3,29 @@
     <template v-if="store.refreshLoading">
     </template>
     <template v-else>
-    <div class="header">
-      <p-toolbar class="bg-teal-500 shadow-4 border-none">
-        <template #start>
-          <div
-            class="text-4xl font-bold text-primary-50"
-            style="{margin-left: 100px;}"
-          >
-            BlockChange
-          </div>
-        </template>
+      <div class="header">
+        <p-toolbar class="bg-teal-500 shadow-4 border-none">
+          <template #start>
+            <div
+              class="text-4xl font-bold text-primary-50"
+              style="{margin-left: 100px;}"
+            >
+              BlockChange
+            </div>
+          </template>
 
-        <template #center> </template>
-      </p-toolbar>
-    </div>
-    <div class="space-left">
-      <navigation />
-    </div>
-    <main>
-      <div class="working-area">
-        <router-view />
+          <template #center> </template>
+        </p-toolbar>
       </div>
-    </main>
-  </template>
+      <div class="space-left">
+        <navigation />
+      </div>
+      <main>
+        <div class="working-area">
+          <router-view />
+        </div>
+      </main>
+    </template>
   </div>
 </template>
 

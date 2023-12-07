@@ -3,12 +3,13 @@ import HomeView from "../views/HomeView.vue";
 import CharityLayout from "../components/CharityLayout.vue";
 import DonationsLayout from "../components/DonationsLayout.vue";
 import NewCasePage from "../views/NewCasePage.vue"
+import RequestsLayout from '../components/RequestsLayout.vue'
 import { useCryptoStore } from "@/stores/crypto"
 
 //const store = useCryptoStore()
 
 const requireLogin = (to, from, next) => {
-  //console.log(from)
+  // console.log(from)
   if (
     from.path === "/" ||
     from.path === "/donor" ||
@@ -65,7 +66,7 @@ const router = createRouter({
         {
           path: "requests",
           name: "requests",
-          component: DonationsLayout,
+          component: RequestsLayout,
         },
         {
           path: "newcase",

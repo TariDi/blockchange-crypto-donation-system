@@ -21,14 +21,16 @@ contract Charity {
     uint256 private nextCaseId;
     mapping(uint256 => DonationCase) public cases;
     uint256[] private activeCaseIds;
+    mapping(address => uint256[]) private beneficiaryCaseIds;
 
     event CaseCreated(uint256 caseId, address createdBy, uint256 timestamp);
     event CaseCompleted(uint256 caseId);
     event Donate(
         uint256 caseId,
-        address donor,
+        address indexed donor,
         uint256 amount,
-        uint256 timestamp
+        uint256 timestamp,
+        string detailsHash
     );
 
     constructor() {
@@ -54,6 +56,7 @@ contract Charity {
 
         cases[nextCaseId] = newCase;
         activeCaseIds.push(nextCaseId);
+        beneficiaryCaseIds[msg.sender].push(nextCaseId);
         emit CaseCreated(nextCaseId, msg.sender, block.timestamp);
         nextCaseId++;
     }
@@ -76,7 +79,11 @@ contract Charity {
             emit CaseCompleted(_caseId);
         }
 
-        emit Donate(_caseId, msg.sender, msg.value, block.timestamp);
+        emit Donate(_caseId, msg.sender, msg.value, block.timestamp, cases[_caseId].detailsHash);
+    }
+
+    function getCaseData (uint256 _caseId) public view returns (DonationCase memory) {
+        return cases[_caseId];
     }
 
 
@@ -96,5 +103,20 @@ contract Charity {
                 break;
             }
         }
+    }
+
+    function getBeneficiaryCases(address _beneficiary)
+        public
+        view
+        returns (DonationCase[] memory)
+    {
+        uint256[] storage ids = beneficiaryCaseIds[_beneficiary];
+        DonationCase[] memory beneficiaryCases = new DonationCase[](ids.length);
+
+        for (uint256 i = 0; i < ids.length; i++) {
+            beneficiaryCases[i] = cases[ids[i]];
+        }
+
+        return beneficiaryCases;
     }
 }

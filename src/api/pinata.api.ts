@@ -50,26 +50,6 @@ const keyRestrictions = {
         window.alert(error)
     }
 
-    // if (req.method === "POST") {
-    //   try {
-    //     const options = {
-    //       method: 'POST',
-    //       headers: {
-    //         accept: 'application/json',
-    //         'content-type': 'application/json',
-    //         authorization: `Bearer ${process.env.PINATA_JWT}`
-    //       },
-    //       body: JSON.stringify(keyRestrictions)
-    //     }
-    //     const jwtResponse = await fetch('https://api.pinata.cloud/users/generateApiKey', options);
-    //     const json = await jwtResponse.json();
-    //     const { JWT } = json;
-    //     res.send(JWT);
-    //   } catch (e) {
-    //     console.log(e);
-    //     res.status(500).send("Server Error");
-    //   }
-
 
   }
 
@@ -98,11 +78,22 @@ const keyRestrictions = {
       // const res = await axios.get(
       //   `${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}&download=true`
       // )
-      console.log(`${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}`)
+      // console.log(`${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}`)
       return `${import.meta.env.VITE_PUBLIC_GATEWAY_URL}/ipfs/${imageHash}?pinataGatewayToken=${import.meta.env.VITE_PUBLIC_GATEWAY_TOKEN}`
     } catch (error) {
       console.error(error)
     }
+  }
+
+  export function deleteCaseDetails(detailsHash: string, imageHash: string) {
+    const urlImage = `https://api.pinata.cloud/pinning/unpin/${imageHash}`
+    const urlDetails = `https://api.pinata.cloud/pinning/unpin/${detailsHash}`
+    const options = {method: 'DELETE', headers: {accept: 'application/json'}};
+    
+    fetch(urlDetails, options)
+      .catch(err => console.error('error:' + err))
+    fetch(urlImage, options)
+      .catch(err => console.error('error:' + err));
   }
 
   export async function getCaseDetails(detailsHash: string) {
@@ -116,18 +107,3 @@ const keyRestrictions = {
       console.error(error)
     }
   }
-
-// } else if (req.method === "GET") {
-//     try {
-//       const response = await pinata.pinList(
-//         { pinataJWTKey: process.env.PINATA_JWT },
-//         {
-//           pageLimit: 1,
-//         }
-//       );
-//       res.json(response.rows[0]);
-//     } catch (e) {
-//       console.log(e);
-//       res.status(500).send("Server Error");
-//     }
-//   }

@@ -23,6 +23,7 @@ import LoginCard from "../components/LoginCard.vue";
     </div>
     <main>
       <login-card />
+      <img src="@/assets/donation-money-vector-flat-illustration.webp" width="1080"/>
     </main>
   </div>
 </template>

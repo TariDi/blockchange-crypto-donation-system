@@ -7,6 +7,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-facing-decorator";
 import DonationTable from "./DonationTable.vue";
+import { useCryptoStore } from "@/stores/crypto";
 
 @Component({
   components: {
@@ -15,12 +16,14 @@ import DonationTable from "./DonationTable.vue";
 })
 export default class CharityLayout extends Vue {
   numberOfDonations = 20;
+
+  store = useCryptoStore()
 }
 </script>
 
 <style lang="scss" scoped>
 .donations-layout {
-  justify-content: center;
-  width: 95%;
+  margin-left: 8vw;
+  width: 80%;
 }
 </style>

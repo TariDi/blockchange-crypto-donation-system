@@ -2,7 +2,7 @@
   <p-card class="login">
     <template #title>Login</template>
     <template #content>
-      <p-tab-view>
+      <!--<p-tab-view>
         <p-tab-panel header="Donor Account">
           <div class="login-tab">
             <div class="login-details">
@@ -61,7 +61,13 @@
             </div>
           </div>
         </p-tab-panel>
-      </p-tab-view>
+      </p-tab-view>-->
+      <p-button
+                type="submit"
+                label="Connect with MetaMask"
+                :loading="submitLoading"
+                @click="attemptLogin"
+              />
     </template>
   </p-card>
 </template>
@@ -100,12 +106,12 @@ export default class LoginCard extends Vue {
 
   store = useCryptoStore()
 
-  mounted () {
-    this.store.initialize()
+  async mounted () {
+    await this.store.initialize()
   }
 
   async attemptLogin() {
-    console.log(this.value)
+    // console.log(this.value)
     this.submitLoading = true;
     this.authenticate()
     .then((result) => {
