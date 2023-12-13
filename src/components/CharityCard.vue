@@ -14,9 +14,9 @@
       </p-card>
     </template>
     <template v-else>
-      <p-card style="width: 28em">
+      <p-card style="width: 25em">
         <template #header>
-          <img alt="user header" :src="imageLink" width="448" />
+          <img alt="user header" :src="imageLink" width="400" />
         </template>
         <template #title >{{ details.title }}</template>
         <template #subtitle >
@@ -37,8 +37,7 @@
           </div>
         </template>
         <template #footer>
-          <p-button icon="pi pi-money-bill" label="Donate" @click="visible = true" />
-          <p-button icon="pi pi-bookmark" label="Bookmark" severity="secondary" style="margin-left: 0.5em" />
+          <p-button icon="pi pi-money-bill" label="Donate" severity="secondary" @click="visible = true" />
         </template>
       </p-card>
       <Dialog v-model:visible="visible" modal :header="'Make Donation -> ' + details.createdBy"

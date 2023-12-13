@@ -233,7 +233,7 @@ export default class LoginCard extends Vue {
 }
 
 .login-image {
-  width: 52vw;
+  width: 50vw;
 }
 
 .p-password.p-inputwrapper {

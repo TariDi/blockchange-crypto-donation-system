@@ -15,19 +15,19 @@
       </template>
 
       <template v-else>
-        <p-card style="width: 28em">
+        <p-card style="width: 25em">
           <template #header>
-            <img alt="user header" :src="imageLink" width="448" />
+            <img alt="user header" :src="imageLink" width="400" />
           </template>
           <template #title >{{ details.title }}</template>
           <template #subtitle >
             Created on {{ formattedTime(charity.timestamp) }}
           </template>
           <template #content v-if="caseDetails !== undefined">
-            <div class="mb-4">
+            <div class="mb-4 text-sm">
               {{ details.description }}
             </div>
-            <div class="mb-4">
+            <div>
               <ProgressBar :value="calcPercent(convertWeiToEther(charity.currentAmount), convertWeiToEther(charity.targetAmount))"> {{ convertWeiToEther(charity.currentAmount) }} </ProgressBar>
               <div class="p-1 flex flex-row justify-content-between">
                 <span class="text-xs font-normal"> Raised: {{ convertWeiToEther(charity.currentAmount) }} </span>

@@ -81,7 +81,7 @@ export default class CharityLayout extends Vue {
       []
     }
   }
-  
+
   onConfirm() {
     this.loadingActiveCases = true
     this.store.loadActiveCases()
@@ -118,7 +118,7 @@ export default class CharityLayout extends Vue {
   flex-wrap: wrap;
   justify-content: start;
   gap: 48px;
-  margin-left: 5vw;
+  margin-left: 2vw;
 }
 
 .charity-search-bar {
