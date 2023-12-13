@@ -35,4 +35,7 @@ npm run dev
 ```
 
 11. Search `https://localhost:5173` in your browser (where MetaMask is installed), and you should see the landing page of the app!
+
+**Note - Ensure that only a single account is chosen while logging in through MetaMask**
+
 ![BlockChange Landing Page](public/blockchange-landing-page.png)

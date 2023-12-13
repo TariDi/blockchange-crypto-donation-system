@@ -10,6 +10,7 @@ import App from "./App.vue";
 import router from "./router";
 import "primevue/resources/primevue.min.css"; //core css
 import "primeicons/primeicons.css"; //icons
+import "primevue/resources/themes/lara-light-teal/theme.css"
 
 const app = createApp(App);
 
